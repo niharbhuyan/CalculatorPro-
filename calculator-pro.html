@@ -1,15 +1,1819 @@
-main
- │
- └── Calculator Pro source
-       ↓
-agent/initialize-calculator-pro
-       ↓
-Android project
-       ↓
-AdMob
-       ↓
-Tests
-       ↓
-Release AAB
-       ↓
-Play Store
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="monetag" content="b9803df588e6c4270763b2be2cfd17e6">
+<meta name="google-adsense-account" content="ca-app-pub-4880243637225183~6327789485">
+<title>Calculator Pro — NIHAR SALES</title>
+<!-- Google AdSense — Auto Ads (automatically places & sizes ads) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-4880243637225183" crossorigin="anonymous"></script>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({google_ad_client:"ca-app-pub-4880243637225183",enable_page_level_ads:true});</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+
+/* ===== THEME ===== */
+:root{--acc:#c8f560;--acc-rgb:200,245,96;--acc2:#60e0f5;--acc3:#f560a8;--acc4:#f5a860;}
+[data-theme="dark"]{--bg:#09090c;--surface:#131318;--panel:#191921;--card:#1f1f2b;--border:#28283a;--text:#e8e8f0;--text2:#8888a8;--muted:#484862;--inp:#0f0f18;}
+[data-theme="light"]{--bg:#f0f0eb;--surface:#ffffff;--panel:#f7f7f2;--card:#eeeee8;--border:#deded6;--text:#1a1a28;--text2:#60607a;--muted:#9898b8;--inp:#f5f5f0;}
+
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;height:100vh;}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;flex-direction:column;height:100vh;max-width:520px;margin:0 auto;width:100%;}
+
+/* ===== HEADER ===== */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:.04em;}
+.logo .acc{color:var(--acc);}
+.hdr-acts{display:flex;gap:5px;}
+.ic-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .2s;user-select:none;}
+.ic-btn:hover{border-color:var(--acc);color:var(--acc);}
+
+/* ===== TABS ===== */
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:52px;padding:9px 2px;background:none;border:none;border-bottom:2px solid transparent;font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);}
+
+/* ===== PANELS ===== */
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.panel.on{display:flex;}
+
+/* ===== CALC PANEL ===== */
+.disp{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 18px 12px;position:relative;flex-shrink:0;}
+.disp-badges{position:absolute;top:9px;left:14px;display:flex;gap:5px;}
+.badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;padding:2px 5px;border-radius:4px;border:1px solid;display:none;}
+.badge.show{display:inline-block;}
+.badge-m{color:var(--acc2);border-color:rgba(96,224,245,.3);background:rgba(96,224,245,.08);}
+.disp-tr{position:absolute;top:9px;right:14px;display:flex;gap:5px;align-items:center;}
+.ang-btn{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1em;padding:3px 7px;border:1px solid rgba(var(--acc-rgb),.35);border-radius:5px;background:rgba(var(--acc-rgb),.08);color:var(--acc);cursor:pointer;transition:all .2s;}
+.cp-btn{width:25px;height:25px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text2);cursor:pointer;font-size:11px;transition:all .2s;}
+.cp-btn:hover{border-color:var(--acc);color:var(--acc);}
+.disp-expr{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--muted);text-align:right;min-height:15px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.disp-val{font-family:'Space Mono',monospace;font-size:34px;font-weight:700;text-align:right;line-height:1.1;word-break:break-all;transition:font-size .15s;}
+.disp-val.sm{font-size:22px;}.disp-val.xs{font-size:15px;}
+
+/* History drawer */
+.hist-draw{background:var(--panel);border-bottom:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s;flex-shrink:0;}
+.hist-draw.open{max-height:180px;overflow-y:auto;}
+.hist-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);}
+.h-item{padding:7px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.h-item:hover{background:var(--card);}
+.h-expr{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);}
+.h-val{font-family:'Space Mono',monospace;font-size:12px;color:var(--text);margin-top:1px;}
+
+/* Vars panel */
+.vars-panel{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 10px;display:none;flex-shrink:0;}
+.vars-panel.open{display:block;}
+.vp-title{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;color:var(--muted);margin-bottom:7px;}
+.vp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
+.v-card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 3px;text-align:center;cursor:pointer;transition:all .15s;}
+.v-card:hover{border-color:var(--acc4);}
+.v-name{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--acc4);font-weight:700;}
+.v-val{font-family:'Space Mono',monospace;font-size:9px;color:var(--text);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Buttons */
+.calc-btns{padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--surface);flex-shrink:0;}
+.br{display:grid;gap:6px;}
+.br5{grid-template-columns:repeat(5,1fr);}
+.br4{grid-template-columns:repeat(4,1fr);}
+.btn{height:46px;border:1px solid var(--border);border-radius:8px;font-family:'Space Mono',monospace;font-size:11.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s,background .15s,border-color .15s;position:relative;overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent;}
+.btn:active{transform:scale(.93);}
+.fn{background:var(--card);color:var(--acc2);font-size:9.5px;}
+.fn:hover{background:rgba(96,224,245,.1);border-color:rgba(96,224,245,.35);}
+.num{background:var(--panel);color:var(--text);}
+.num:hover{background:var(--card);}
+.op{background:rgba(var(--acc-rgb),.06);color:var(--acc);border-color:rgba(var(--acc-rgb),.2);font-size:15px;}
+.op:hover{background:rgba(var(--acc-rgb),.14);border-color:rgba(var(--acc-rgb),.45);}
+.ac{background:rgba(245,96,168,.1);color:var(--acc3);border-color:rgba(245,96,168,.25);font-size:9.5px;}
+.ac:hover{background:rgba(245,96,168,.18);border-color:rgba(245,96,168,.5);}
+.eq{background:var(--acc);color:#0d1a00;border-color:var(--acc);font-size:19px;font-weight:700;box-shadow:0 4px 14px rgba(var(--acc-rgb),.25);}
+.eq:hover{opacity:.9;box-shadow:0 4px 20px rgba(var(--acc-rgb),.45);}
+.sp2{grid-column:span 2;}
+
+/* ===== GRAPH PANEL ===== */
+.g-inputs{padding:10px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.g-fn-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.g-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.g-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--text2);white-space:nowrap;}
+.g-inp{flex:1;background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text);outline:none;transition:border-color .2s;}
+.g-inp:focus{border-color:var(--acc);}
+.g-inp::placeholder{color:var(--muted);}
+.g-ctrls{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.g-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.g-btn:hover,.g-btn.on{border-color:var(--acc);color:var(--acc);background:rgba(var(--acc-rgb),.08);}
+.g-wrap{flex:1;position:relative;background:var(--panel);min-height:220px;}
+#gCvs{width:100%;height:100%;display:block;cursor:grab;touch-action:none;}
+#gCvs:active{cursor:grabbing;}
+.g-info{position:absolute;bottom:6px;left:8px;font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);}
+.zoom-c{position:absolute;bottom:6px;right:8px;display:flex;flex-direction:column;gap:3px;}
+.z-btn{width:26px;height:26px;background:var(--card);border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text2);transition:all .15s;}
+.z-btn:hover{border-color:var(--acc);color:var(--acc);}
+.g-taylor{padding:9px 10px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+.sec-title{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;color:var(--muted);margin-bottom:7px;text-transform:uppercase;}
+.t-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.t-sel,.t-num{background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text);outline:none;}
+.t-num{width:55px;}
+
+/* ===== STATS PANEL ===== */
+.s-input{padding:10px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.s-ta{width:100%;height:65px;background:var(--inp);border:1px solid var(--border);border-radius:7px;padding:8px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text);resize:none;outline:none;transition:border-color .2s;}
+.s-ta:focus{border-color:var(--acc);}
+.s-btns{display:flex;gap:7px;margin-top:7px;}
+.a-btn{background:var(--acc);color:#0d1a00;border:none;border-radius:6px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:opacity .15s;}
+.a-btn:hover{opacity:.88;}
+.a-btn.sec{background:var(--card);color:var(--text2);border:1px solid var(--border);font-weight:400;}
+.a-btn.sec:hover{border-color:var(--acc3);color:var(--acc3);opacity:1;}
+.s-results{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:10px;background:var(--panel);overflow-y:auto;flex:1;}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+.s-card.full{grid-column:span 2;}.s-card.hi{border-color:rgba(var(--acc-rgb),.3);}
+.s-card.hi .s-v{color:var(--acc);}
+.s-lbl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.08em;margin-bottom:3px;}
+.s-v{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--text);}
+.hist-wrap{padding:10px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;display:none;}
+#hCvs{width:100%;height:120px;border-radius:7px;}
+
+/* ===== TOOLS PANEL ===== */
+.tool-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;padding:0 10px;}
+.tool-tabs::-webkit-scrollbar{display:none;}
+.ttab{padding:9px 10px;background:none;border:none;border-bottom:2px solid transparent;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ttab.on{color:var(--acc2);border-bottom-color:var(--acc2);}
+.tool-body{flex:1;overflow-y:auto;padding:14px;}
+
+/* Generic tool components */
+.t-sec-title{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.12em;color:var(--muted);margin-bottom:9px;margin-top:14px;}
+.t-sec-title:first-child{margin-top:0;}
+.t-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;flex-wrap:wrap;}
+.t-inp{flex:1;min-width:60px;background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);outline:none;transition:border-color .2s;}
+.t-inp:focus{border-color:var(--acc2);}
+.t-sel{background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text);outline:none;cursor:pointer;}
+.t-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--text2);white-space:nowrap;}
+.t-res{background:var(--panel);border:1px solid var(--border);border-radius:7px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;color:var(--acc);min-height:38px;word-break:break-all;line-height:1.6;}
+.t-res.txt{color:var(--text);font-size:11px;}
+.hi{color:var(--acc);font-weight:700;}.err{color:var(--acc3);}
+.sep{height:1px;background:var(--border);margin:12px 0;}
+
+/* Unit cat buttons */
+.ucat-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.ucat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-family:'Space Mono',monospace;font-size:8.5px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.ucat.on{border-color:var(--acc2);color:var(--acc2);background:rgba(96,224,245,.08);}
+
+/* Matrix */
+.mat-wrap{display:flex;gap:10px;}
+.mat-block{flex:1;}
+.mat-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--acc2);margin-bottom:5px;font-weight:700;}
+.mat-grid{display:grid;gap:4px;}
+.m-cell{background:var(--inp);border:1px solid var(--border);border-radius:5px;padding:5px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:center;outline:none;width:100%;}
+.m-cell:focus{border-color:var(--acc2);}
+.mat-ops{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0;}
+.m-op{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.m-op:hover{border-color:var(--acc2);color:var(--acc2);}
+
+/* Equation */
+.eq-types{display:flex;gap:5px;margin-bottom:12px;}
+.eq-tb{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:8.5px;color:var(--muted);cursor:pointer;transition:all .15s;}
+.eq-tb.on{border-color:var(--acc2);color:var(--acc2);background:rgba(96,224,245,.08);}
+.eq-row{display:flex;align-items:center;gap:5px;margin-bottom:7px;flex-wrap:wrap;}
+.e-inp{width:58px;background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:center;outline:none;}
+.e-inp:focus{border-color:var(--acc2);}
+.e-sym{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);}
+
+/* ===== LIBRARY PANEL ===== */
+.lib-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;padding:0 10px;}
+.lib-tabs::-webkit-scrollbar{display:none;}
+.ltab{padding:9px 10px;background:none;border:none;border-bottom:2px solid transparent;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.ltab.on{color:var(--acc3);border-bottom-color:var(--acc3);}
+.lib-body{flex:1;overflow-y:auto;padding:10px;}
+
+.c-card{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all .15s;}
+.c-card:hover{border-color:var(--acc3);}
+.c-left .c-name{font-size:11.5px;color:var(--text);}
+.c-left .c-sym{font-family:'Space Mono',monospace;font-size:9px;color:var(--acc3);margin-top:1px;}
+.c-val{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);}
+
+.fml-cat{margin-bottom:14px;}
+.fml-cat-title{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;color:var(--muted);margin-bottom:7px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.fml-card{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:5px;cursor:pointer;transition:all .15s;}
+.fml-card:hover{border-color:var(--acc3);}
+.fml-name{font-size:11px;color:var(--text);}
+.fml-expr{font-family:'Space Mono',monospace;font-size:9px;color:var(--acc3);}
+
+.sv-item{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--card);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;gap:7px;}
+.sv-name{font-size:11.5px;color:var(--text);}
+.sv-expr{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;}
+.sv-val{font-family:'Space Mono',monospace;font-size:12px;color:var(--acc);flex-shrink:0;}
+.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;transition:color .15s;flex-shrink:0;}
+.del:hover{color:var(--acc3);}
+.empty{text-align:center;padding:35px 16px;color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;line-height:1.9;}
+
+/* ===== SETTINGS MODAL ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:18px;max-height:80vh;overflow-y:auto;}
+.modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;}
+.m-sec-title{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;color:var(--muted);margin-bottom:10px;margin-top:16px;}
+.m-sec-title:first-child{margin-top:0;}
+.m-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.m-lbl{font-size:12.5px;color:var(--text);}
+.m-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.tog{width:38px;height:21px;background:var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tog.on{background:var(--acc);}
+.tog::after{content:'';position:absolute;width:15px;height:15px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
+.tog.on::after{left:20px;}
+.acc-pick{display:flex;gap:7px;flex-wrap:wrap;}
+.a-dot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.a-dot.on{border-color:#fff;transform:scale(1.15);}
+.sf-inp{background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);width:56px;text-align:center;outline:none;}
+.share-url{background:var(--inp);border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-family:'Space Mono',monospace;font-size:9px;color:var(--acc);word-break:break-all;margin-bottom:9px;line-height:1.65;}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px 18px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text);z-index:200;transition:transform .3s;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+.pop{animation:pop .2s ease;}
+@keyframes ef{0%,100%{background:var(--panel)}50%{background:rgba(245,96,168,.12)}}
+.ef{animation:ef .4s ease;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+/* ===== FINANCE ===== */
+.fin-res{background:rgba(var(--acc-rgb),.08);border:1px solid rgba(var(--acc-rgb),.25);border-radius:9px;padding:12px 14px;margin-top:10px;}
+.fin-res-l{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.fin-res-v{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--acc);}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;}
+.fin-cell{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+.fin-cell-l{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:2px;}
+.fin-cell-v{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--text);}
+.amort{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:8px;margin-top:7px;}
+.amort th{color:var(--muted);padding:3px 5px;text-align:right;border-bottom:1px solid var(--border);}
+.amort td{color:var(--text);padding:3px 5px;text-align:right;border-bottom:1px solid var(--border);}
+.amort tr:hover td{background:var(--panel);}
+.warn-note{background:rgba(245,168,96,.08);border:1px solid rgba(245,168,96,.25);border-radius:6px;padding:6px 10px;font-family:'Space Mono',monospace;font-size:8px;color:var(--acc4);margin-bottom:10px;}
+
+/* ===== SCIENCE ===== */
+.pt-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;}
+.pt-grid{display:grid;grid-template-columns:repeat(18,minmax(30px,1fr));gap:2px;min-width:560px;}
+.pt-el{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:2px 1px;cursor:pointer;transition:all .12s;text-align:center;aspect-ratio:.9;display:flex;flex-direction:column;justify-content:center;}
+.pt-el:hover{transform:scale(1.12);z-index:5;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.4);}
+.pt-el.s-blk{border-color:rgba(96,224,245,.4);background:rgba(96,224,245,.08);}
+.pt-el.p-blk{border-color:rgba(200,245,96,.4);background:rgba(200,245,96,.07);}
+.pt-el.d-blk{border-color:rgba(245,168,96,.4);background:rgba(245,168,96,.07);}
+.pt-el.f-blk{border-color:rgba(245,96,168,.35);background:rgba(245,96,168,.06);}
+.pt-n{font-family:'Space Mono',monospace;font-size:6px;color:var(--muted);}
+.pt-s{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--text);line-height:1.1;}
+.pt-m{font-size:5.5px;color:var(--muted);}
+.pt-gap{min-width:30px;}
+.el-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;}
+.el-sym-big{font-family:'Syne',sans-serif;font-size:46px;font-weight:800;line-height:1;}
+.el-dg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.el-dc{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px 9px;}
+.el-dl{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);margin-bottom:2px;}
+.el-dv{font-family:'Space Mono',monospace;font-size:11px;color:var(--text);}
+
+/* SUVAT */
+.suv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:10px;}
+.suv-lbl{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--acc2);text-align:center;margin-bottom:3px;}
+.suv-inp{background:var(--inp);border:1px solid var(--border);border-radius:6px;padding:7px 3px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text);text-align:center;outline:none;width:100%;}
+.suv-inp:focus{border-color:var(--acc2);}
+.step{background:var(--panel);border-left:2px solid var(--acc2);padding:6px 10px;margin:4px 0;border-radius:0 5px 5px 0;font-family:'Space Mono',monospace;font-size:9px;line-height:1.7;}
+.step-n{color:var(--acc2);font-weight:700;}
+
+/* Vectors */
+.vec-comp{display:flex;gap:5px;margin-bottom:7px;}
+
+/* ===== UX ===== */
+.voice-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .2s;}
+.voice-btn:hover{border-color:var(--acc3);color:var(--acc3);}
+.voice-btn.on{border-color:var(--acc3);color:var(--acc3);background:rgba(245,96,168,.12);animation:pulse 1s infinite;}
+.pwa-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:150;box-shadow:0 8px 28px rgba(0,0,0,.55);max-width:400px;width:calc(100% - 32px);transition:transform .35s ease;}
+.pwa-bar.show{transform:translateX(-50%) translateY(0);}
+.pwa-icon{font-size:26px;flex-shrink:0;}
+.pwa-txt-title{font-size:12.5px;font-weight:500;color:var(--text);}
+.pwa-txt-sub{font-size:9px;color:var(--muted);margin-top:1px;}
+.conv-out{font-family:'Space Mono',monospace;font-size:13px;color:var(--acc);padding:10px 12px;background:var(--panel);border:1px solid var(--border);border-radius:7px;margin-top:7px;word-break:break-all;line-height:1.6;}
+#qrOut{display:flex;justify-content:center;padding:10px 0;}
+#qrOut canvas,#qrOut img{border-radius:8px;background:white;padding:8px;}
+/* Canvases */
+#regCvs,#normCvs,#boxCvs{width:100%;border-radius:7px;background:var(--panel);}
+/* Pascal triangle */
+.pascal-row{text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--text);letter-spacing:.15em;line-height:1.9;}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div style="display:flex;flex-direction:column;line-height:1.1;">
+    <div class="logo">Calculator <span class="acc">Pro</span></div>
+    <div style="font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:.18em;color:var(--muted);margin-top:1px;">BY NIHAR SALES</div>
+  </div>
+  <div class="hdr-acts">
+    <div class="ic-btn voice-btn" id="voiceBtn" title="Voice Input" onclick="toggleVoice()">🎤</div>
+    <div class="ic-btn" title="History" onclick="toggleHist()">⏱</div>
+    <div class="ic-btn" title="Variables" onclick="toggleVars()">𝑥</div>
+    <div class="ic-btn" title="Share" onclick="openShare()">⇪</div>
+    <div class="ic-btn" title="Theme" onclick="toggleTheme()">◐</div>
+    <div class="ic-btn" title="Settings" onclick="openSettings()">⚙</div>
+  </div>
+</header>
+
+<!-- PWA Install Bar -->
+<div class="pwa-bar" id="pwaBar">
+  <div class="pwa-icon">📱</div>
+  <div style="flex:1">
+    <div class="pwa-txt-title">Install Calculator Pro</div>
+    <div class="pwa-txt-sub">Add to home screen for offline use</div>
+  </div>
+  <button class="a-btn" id="pwaInstallBtn" onclick="installPWA()">INSTALL</button>
+  <button class="a-btn sec" onclick="dismissPWA()" style="padding:6px 8px">✕</button>
+</div>
+
+<!-- MAIN TABS -->
+<nav class="tab-bar">
+  <button class="tab on" onclick="gotoTab('calc',this)">CALC</button>
+  <button class="tab" onclick="gotoTab('graph',this)">GRAPH</button>
+  <button class="tab" onclick="gotoTab('stats',this)">STATS</button>
+  <button class="tab" onclick="gotoTab('finance',this)">FINANCE</button>
+  <button class="tab" onclick="gotoTab('tools',this)">TOOLS</button>
+  <button class="tab" onclick="gotoTab('science',this)">SCIENCE</button>
+  <button class="tab" onclick="gotoTab('lib',this)">LIBRARY</button>
+</nav>
+
+<!-- ======================================================= AD BANNER ======================================================= -->
+<!-- Google Auto Ads handles placement automatically. This anchor slot is optional. -->
+<div id="adBanner" style="width:100%;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow:hidden;display:none;">
+  <ins class="adsbygoogle"
+       style="display:block;width:100%;height:60px;"
+       data-ad-client="ca-app-pub-4880243637225183~6327789485"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
+<script>
+// Show the banner container only if the ad actually loads
+window.addEventListener('load',function(){
+  try{
+    var ins=document.querySelector('#adBanner ins');
+    if(ins&&ins.getAttribute('data-ad-status')==='filled'){
+      document.getElementById('adBanner').style.display='block';
+    }
+    // Fallback: show after 2s if adsbygoogle ran without error
+    setTimeout(function(){
+      if(window.adsbygoogle&&window.adsbygoogle.loaded){
+        document.getElementById('adBanner').style.display='block';
+      }
+    },2000);
+  }catch(e){}
+});
+</script>
+
+<!-- ======================================================= CALC ======================================================= -->
+<div id="panel-calc" class="panel on">
+  <div class="disp" id="dispEl">
+    <div class="disp-badges"><span class="badge badge-m" id="memBadge">MEM</span></div>
+    <div class="disp-tr">
+      <div class="ang-btn" id="angBtn" onclick="toggleAng()">DEG</div>
+      <div class="cp-btn" title="Copy" onclick="copyResult()">⎘</div>
+    </div>
+    <div class="disp-expr" id="dispExpr"></div>
+    <div class="disp-val" id="dispVal">0</div>
+  </div>
+
+  <div class="hist-draw" id="histDraw">
+    <div class="hist-hdr"><span>HISTORY</span><span style="color:var(--acc3);cursor:pointer;font-size:9px;" onclick="clearHist()">CLEAR</span></div>
+    <div id="histList"></div>
+  </div>
+
+  <div class="vars-panel" id="varsPanel">
+    <div class="vp-title">VARIABLES — tap to insert · hold to set value</div>
+    <div class="vp-grid" id="vGrid"></div>
+  </div>
+
+  <div class="calc-btns">
+    <div class="br br5">
+      <button class="btn fn" onclick="doFn('sin')">sin</button>
+      <button class="btn fn" onclick="doFn('cos')">cos</button>
+      <button class="btn fn" onclick="doFn('tan')">tan</button>
+      <button class="btn fn" onclick="doFn('log')">log</button>
+      <button class="btn fn" onclick="doFn('ln')">ln</button>
+    </div>
+    <div class="br br5">
+      <button class="btn fn" onclick="doFn('asin')">sin⁻¹</button>
+      <button class="btn fn" onclick="doFn('acos')">cos⁻¹</button>
+      <button class="btn fn" onclick="doFn('atan')">tan⁻¹</button>
+      <button class="btn fn" onclick="doFn('sqrt')">√</button>
+      <button class="btn fn" onclick="doFn('cbrt')">∛</button>
+    </div>
+    <div class="br br5">
+      <button class="btn fn" onclick="addOp('^')">xʸ</button>
+      <button class="btn fn" onclick="doFn('exp')">eˣ</button>
+      <button class="btn fn" onclick="doFn('fact')">n!</button>
+      <button class="btn fn" onclick="addConst('Math.PI')">π</button>
+      <button class="btn fn" onclick="addConst('Math.E')">e</button>
+    </div>
+    <div class="br br5">
+      <button class="btn fn" onclick="mStore()">MS</button>
+      <button class="btn fn" onclick="mRecall()">MR</button>
+      <button class="btn fn" onclick="mClear()">MC</button>
+      <button class="btn fn" onclick="doFn('abs')">|x|</button>
+      <button class="btn fn" onclick="flipSign()">±</button>
+    </div>
+    <div class="br br4">
+      <button class="btn ac" onclick="allClear()">AC</button>
+      <button class="btn ac" onclick="backspace()" style="font-size:14px">⌫</button>
+      <button class="btn fn" onclick="addOp('(')" style="color:var(--text2)">(</button>
+      <button class="btn fn" onclick="addOp(')')" style="color:var(--text2)">)</button>
+    </div>
+    <div class="br br4">
+      <button class="btn num" onclick="addDigit('7')">7</button>
+      <button class="btn num" onclick="addDigit('8')">8</button>
+      <button class="btn num" onclick="addDigit('9')">9</button>
+      <button class="btn op" onclick="addOp('/')">÷</button>
+    </div>
+    <div class="br br4">
+      <button class="btn num" onclick="addDigit('4')">4</button>
+      <button class="btn num" onclick="addDigit('5')">5</button>
+      <button class="btn num" onclick="addDigit('6')">6</button>
+      <button class="btn op" onclick="addOp('*')">×</button>
+    </div>
+    <div class="br br4">
+      <button class="btn num" onclick="addDigit('1')">1</button>
+      <button class="btn num" onclick="addDigit('2')">2</button>
+      <button class="btn num" onclick="addDigit('3')">3</button>
+      <button class="btn op" onclick="addOp('-')">−</button>
+    </div>
+    <div class="br" style="grid-template-columns:2fr 1fr 1fr 1fr">
+      <button class="btn num" onclick="addDigit('0')">0</button>
+      <button class="btn num" onclick="addDot()">.</button>
+      <button class="btn op" onclick="addOp('+')">+</button>
+      <button class="btn eq" onclick="compute()">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================= GRAPH ======================================================= -->
+<div id="panel-graph" class="panel">
+  <div class="g-inputs">
+    <div id="gFnRows"></div>
+    <div class="g-ctrls">
+      <div class="g-btn" onclick="plotGraph()">▶ PLOT</div>
+      <div class="g-btn" onclick="resetView()">⊙ RESET</div>
+      <div class="g-btn on" id="gridBtn" onclick="toggleGrid()">⊞ GRID</div>
+      <div class="g-btn on" id="lblBtn" onclick="toggleLabels()">⊢ LABELS</div>
+      <div class="g-btn on" id="radGrBtn" onclick="toggleGrRad()" title="Graph always uses radians for trig">RAD</div>
+    </div>
+  </div>
+  <div class="g-wrap" id="gWrap">
+    <canvas id="gCvs"></canvas>
+    <div class="g-info" id="gInfo"></div>
+    <div class="zoom-c">
+      <div class="z-btn" onclick="zIn()">+</div>
+      <div class="z-btn" onclick="zOut()">−</div>
+    </div>
+  </div>
+  <div class="g-taylor">
+    <div class="sec-title">TAYLOR SERIES APPROXIMATION</div>
+    <div class="t-row">
+      <select class="t-sel" id="tFn"><option value="sin">sin(x)</option><option value="cos">cos(x)</option><option value="exp">eˣ</option><option value="ln">ln(1+x)</option></select>
+      <span class="t-lbl">order:</span>
+      <input class="t-num" type="number" id="tOrd" value="5" min="1" max="15">
+      <div class="g-btn" onclick="addTaylor()">+ ADD TO GRAPH</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================= STATS ======================================================= -->
+<div id="panel-stats" class="panel">
+  <div class="s-input">
+    <div class="sec-title">DATASET — comma or newline separated numbers</div>
+    <textarea class="s-ta" id="stIn" placeholder="1, 4, 9, 16, 25, ..."></textarea>
+    <div class="s-btns">
+      <button class="a-btn" onclick="computeStats()">COMPUTE</button>
+      <button class="a-btn sec" onclick="sortStats()">SORT ↑</button>
+      <button class="a-btn sec" onclick="clearStats()">CLEAR</button>
+    </div>
+  </div>
+  <div class="s-results" id="stRes" style="flex:1;overflow-y:auto;">
+    <div class="s-card full" style="text-align:center;color:var(--muted);font-family:Space Mono,monospace;font-size:9px;letter-spacing:.08em;">ENTER DATA ABOVE TO SEE STATISTICS</div>
+  </div>
+  <div class="hist-wrap" id="hWrap">
+    <div class="sec-title">HISTOGRAM</div>
+    <canvas id="hCvs"></canvas>
+  </div>
+</div>
+
+<!-- ======================================================= TOOLS ======================================================= -->
+<div id="panel-tools" class="panel">
+  <div class="tool-tabs" id="toolTabs"></div>
+  <div class="tool-body" id="toolBody"></div>
+</div>
+
+<!-- ======================================================= LIBRARY ======================================================= -->
+<div id="panel-lib" class="panel">
+  <div class="lib-tabs" id="libTabs"></div>
+  <div class="lib-body" id="libBody"></div>
+</div>
+
+<!-- ======================================================= FINANCE ======================================================= -->
+<div id="panel-finance" class="panel">
+  <div class="tool-tabs" id="finTabs"></div>
+  <div class="tool-body" id="finBody" style="padding-bottom:20px;"></div>
+</div>
+
+<!-- ======================================================= SCIENCE ======================================================= -->
+<div id="panel-science" class="panel">
+  <div class="tool-tabs" id="sciTabs"></div>
+  <div class="tool-body" id="sciBody" style="padding-bottom:20px;"></div>
+</div>
+
+</div><!-- end app -->
+
+<!-- NIHAR SALES Brand Footer -->
+<div style="width:100%;max-width:520px;margin:0 auto;text-align:center;padding:4px 0 2px;background:var(--bg);flex-shrink:0;position:fixed;bottom:0;left:50%;transform:translateX(-50%);pointer-events:none;z-index:10;">
+  <span style="font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--muted);opacity:.6;">© NIHAR SALES · Calculator Pro</span>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settMod">
+  <div class="modal">
+    <div class="modal-title">Calculator Pro — Settings</div>
+    <div class="m-sec-title">DISPLAY</div>
+    <div class="m-row"><div><div class="m-lbl">Scientific Notation</div><div class="m-sub">e.g. 1.23 × 10⁴</div></div><div class="tog" id="sciTog" onclick="toggleSci()"></div></div>
+    <div class="m-row"><div><div class="m-lbl">Significant Figures</div><div class="m-sub">0 = auto</div></div><input class="sf-inp" type="number" id="sfInp" value="0" min="0" max="15" onchange="C.sf=+this.value;save()"></div>
+    <div class="m-sec-title">THEME</div>
+    <div class="m-row"><div class="m-lbl">Dark Mode</div><div class="tog on" id="darkTog" onclick="toggleTheme()"></div></div>
+    <div class="m-row" style="align-items:flex-start"><div class="m-lbl">Accent Color</div><div class="acc-pick" id="aPick"></div></div>
+    <div class="m-sec-title">SAVE EXPRESSION</div>
+    <div style="display:flex;gap:7px;"><input class="t-inp" type="text" id="saveNm" placeholder="Label (e.g. My Formula)" style="flex:1"><button class="a-btn" onclick="saveExpr()">SAVE</button></div>
+    <button class="a-btn sec" style="width:100%;margin-top:10px;" onclick="closeMod('settMod')">CLOSE</button>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="overlay" id="shareMod">
+  <div class="modal">
+    <div class="modal-title">Share — Calculator Pro</div>
+    <div class="share-url" id="shareUrl"></div>
+    <div style="display:flex;gap:7px;"><button class="a-btn" onclick="copyShareUrl()" style="flex:1">COPY LINK</button><button class="a-btn sec" onclick="closeMod('shareMod')" style="flex:1">CLOSE</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+const C = {expr:'',isRes:false,ang:'deg',mem:0,hasMem:false,sci:false,sf:0};
+const G = {fns:['sin(x)','','',''],cols:['#c8f560','#60e0f5','#f560a8','#f5a860'],xMin:-10,xMax:10,yMin:-6,yMax:6,grid:true,labels:true,rad:true,drag:false,ds:null,vs:null};
+const VARS = {A:0,B:0,C:0,D:0,F:0};
+let history=[], saved=[], theme='dark', accent='#c8f560';
+let activeTool='units', activeLib='constants', uCat='length', eqType='lin', matSz=2, eqForm='';
+
+const ACCENTS=[{h:'#c8f560',r:'200,245,96'},{h:'#60e0f5',r:'96,224,245'},{h:'#f560a8',r:'245,96,168'},{h:'#f5a860',r:'245,168,96'},{h:'#a860f5',r:'168,96,245'},{h:'#60f5a8',r:'96,245,168'}];
+
+// ═══════════════════════════════════════════════════════════════════
+//  INIT & STORAGE
+// ═══════════════════════════════════════════════════════════════════
+function init(){
+  load();
+  buildVars();
+  buildAccPick();
+  buildGFnRows();
+  initGraph();
+  buildToolTabs();
+  buildLibTabs();
+  renderTool(activeTool);
+  renderLib(activeLib);
+  applyTheme(); applyAccent();
+  updateDisp(C.expr||'0');
+  document.getElementById('angBtn').textContent=C.ang.toUpperCase();
+  document.getElementById('sciTog').classList.toggle('on',C.sci);
+  document.getElementById('sfInp').value=C.sf;
+  // URL param restore
+  const p=new URLSearchParams(location.search);
+  if(p.get('e')){C.expr=p.get('e');C.isRes=false;updateDisp(pretty(C.expr));}
+}
+function save(){
+  try{localStorage.setItem('cp2',JSON.stringify({history:history.slice(0,80),saved,vars:VARS,theme,accent,expr:C.expr,ang:C.ang,sci:C.sci,sf:C.sf,gFns:G.fns}));}catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('cp2')||'{}');
+    if(d.history)history=d.history;
+    if(d.saved)saved=d.saved;
+    if(d.vars)Object.assign(VARS,d.vars);
+    if(d.theme)theme=d.theme;
+    if(d.accent)accent=d.accent;
+    if(d.expr)C.expr=d.expr;
+    if(d.ang)C.ang=d.ang;
+    if(d.sci!==undefined)C.sci=d.sci;
+    if(d.sf!==undefined)C.sf=d.sf;
+    if(d.gFns)G.fns=d.gFns;
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════
+const TAB_IDS=['calc','graph','stats','finance','tools','science','lib'];
+function gotoTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='graph')setTimeout(resizeGCvs,40);
+}
+function switchTab(id){
+  const idx=TAB_IDS.indexOf(id);
+  const btn=document.querySelectorAll('.tab')[idx];
+  gotoTab(id,btn);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  THEME & ACCENT
+// ═══════════════════════════════════════════════════════════════════
+function toggleTheme(){
+  theme=theme==='dark'?'light':'dark'; applyTheme();
+  document.getElementById('darkTog').classList.toggle('on',theme==='dark'); save();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',theme);
+  if(document.getElementById('panel-graph').classList.contains('on'))drawGraph();
+}
+function setAccent(h,r){
+  accent=h;
+  document.documentElement.style.setProperty('--acc',h);
+  document.documentElement.style.setProperty('--acc-rgb',r);
+  document.querySelectorAll('.a-dot').forEach(d=>d.classList.toggle('on',d.dataset.h===h));
+  save();
+}
+function buildAccPick(){
+  const p=document.getElementById('aPick');
+  ACCENTS.forEach(a=>{const d=document.createElement('div');d.className='a-dot'+(a.h===accent?' on':'');d.style.background=a.h;d.dataset.h=a.h;d.onclick=()=>setAccent(a.h,a.r);p.appendChild(d);});
+}
+function applyAccent(){const a=ACCENTS.find(x=>x.h===accent)||ACCENTS[0];document.documentElement.style.setProperty('--acc',a.h);document.documentElement.style.setProperty('--acc-rgb',a.r);}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SETTINGS / SHARE
+// ═══════════════════════════════════════════════════════════════════
+function openSettings(){document.getElementById('settMod').classList.add('open');document.getElementById('darkTog').classList.toggle('on',theme==='dark');document.getElementById('sciTog').classList.toggle('on',C.sci);}
+function closeMod(id){document.getElementById(id).classList.remove('open');}
+function toggleSci(){C.sci=!C.sci;document.getElementById('sciTog').classList.toggle('on',C.sci);save();}
+function openShare(){
+  const expr=C.expr||document.getElementById('dispVal').textContent;
+  const url=new URL(location.href);url.search='?e='+encodeURIComponent(expr);const share=url.toString();
+  document.getElementById('shareUrl').textContent=share;
+  document.getElementById('shareMod').classList.add('open');
+}
+async function copyShareUrl(){try{await navigator.clipboard.writeText(document.getElementById('shareUrl').textContent);toast('Link copied!');}catch(e){toast('Copy failed');}closeMod('shareMod');}
+function saveExpr(){const expr=String(C.expr||'').trim();if(!expr){toast('Nothing to save');return;}const nm=document.getElementById('saveNm').value.trim().slice(0,80)||'Saved';saved.push({name:nm,expr:pretty(expr),val:document.getElementById('dispVal').textContent});if(saved.length>100)saved=saved.slice(-100);save();document.getElementById('saveNm').value='';toast('Saved!');closeMod('settMod');}
+
+// ═══════════════════════════════════════════════════════════════════
+//  CALCULATOR CORE
+// ═══════════════════════════════════════════════════════════════════
+function updateDisp(val,expr){
+  const el=document.getElementById('dispVal');
+  const s=String(val);
+  el.classList.remove('sm','xs','pop');
+  if(s.length>18)el.classList.add('xs');
+  else if(s.length>12)el.classList.add('sm');
+  el.textContent=s;
+  if(expr!==undefined)document.getElementById('dispExpr').textContent=expr;
+  void el.offsetWidth; el.classList.add('pop');
+}
+function dispErr(msg){
+  document.getElementById('dispVal').textContent=msg||'Error';
+  document.getElementById('dispExpr').textContent='';
+  const d=document.getElementById('dispEl');
+  d.classList.remove('ef'); void d.offsetWidth; d.classList.add('ef');
+  C.expr=''; C.isRes=true;
+}
+function pretty(e){
+  return e
+    .replace(/_fact\(/g,'n!(')
+    .replace(/Math\.abs\(/g,'|')
+    .replace(/Math\.PI/g,'π')
+    .replace(/Math\.E(?!xp|[a-zA-Z])/g,'e')
+    .replace(/Math\.sin\b/g,'sin').replace(/Math\.cos\b/g,'cos').replace(/Math\.tan\b/g,'tan')
+    .replace(/Math\.asin\b/g,'sin⁻¹(').replace(/Math\.acos\b/g,'cos⁻¹(').replace(/Math\.atan\b/g,'tan⁻¹(')
+    .replace(/Math\.log10\b/g,'log').replace(/Math\.log\b/g,'ln')
+    .replace(/Math\.sqrt\b/g,'√').replace(/Math\.cbrt\b/g,'∛').replace(/Math\.exp\b/g,'eˣ(')
+    .replace(/\^/g,'^').replace(/\*/g,'×').replace(/\//g,'÷');
+}
+function addDigit(n){if(C.isRes){C.expr='';C.isRes=false;}C.expr+=n;updateDisp(pretty(C.expr));document.getElementById('dispExpr').textContent='';}
+function addOp(op){
+  if(C.isRes)C.isRes=false;
+  const last=C.expr.slice(-1);
+  if(['+','-','*','/','^','%'].includes(last)&&['+','-','*','/','^','%'].includes(op))C.expr=C.expr.slice(0,-1);
+  C.expr+=op;updateDisp(pretty(C.expr));document.getElementById('dispExpr').textContent='';
+}
+function addDot(){
+  if(C.isRes){C.expr='0';C.isRes=false;}
+  const pts=C.expr.split(/[\+\-\*\/\^\(]/);const last=pts[pts.length-1];
+  if(last.includes('.'))return;if(!last)C.expr+='0';C.expr+='.';updateDisp(pretty(C.expr));
+}
+function addConst(c){if(C.isRes){C.expr='';C.isRes=false;}C.expr+=c;updateDisp(pretty(C.expr));document.getElementById('dispExpr').textContent='';}
+function doFn(fn){
+  if(C.isRes&&C.expr){applyFnNow(fn);return;}
+  C.isRes=false;
+  const mp={sin:'Math.sin(',cos:'Math.cos(',tan:'Math.tan(',asin:'Math.asin(',acos:'Math.acos(',atan:'Math.atan(',log:'Math.log10(',ln:'Math.log(',sqrt:'Math.sqrt(',cbrt:'Math.cbrt(',exp:'Math.exp(',fact:'_fact(',abs:'Math.abs('};
+  C.expr+=(mp[fn]||fn+'(');updateDisp(pretty(C.expr));
+}
+function applyFnNow(fn){
+  let v=parseFloat(document.getElementById('dispVal').textContent);if(isNaN(v))return;
+  const {_sin,_cos,_tan,_asin,_acos,_atan}=getTrig(C.ang);
+  let r;
+  switch(fn){
+    case'sin':r=_sin(v);break;case'cos':r=_cos(v);break;case'tan':r=_tan(v);break;
+    case'asin':r=_asin(v);break;case'acos':r=_acos(v);break;case'atan':r=_atan(v);break;
+    case'log':r=Math.log10(v);break;case'ln':r=Math.log(v);break;
+    case'sqrt':r=Math.sqrt(v);break;case'cbrt':r=Math.cbrt(v);break;
+    case'exp':r=Math.exp(v);break;case'fact':r=fact(v);break;case'abs':r=Math.abs(v);break;default:r=v;
+  }
+  if(!isFinite(r)||isNaN(r)){dispErr('Math Error');return;}
+  r=rnd(r);const d=fmtResult(r);
+  C.expr=String(r);updateDisp(d,fn+'('+v+') =');C.isRes=true;
+}
+function flipSign(){
+  if(!C.expr)return;
+  if(C.isRes){const v=parseFloat(C.expr);if(!isNaN(v)){C.expr=String(-v);updateDisp(C.expr);}return;}
+  if(C.expr.startsWith('-'))C.expr=C.expr.slice(1);else C.expr='-'+C.expr;updateDisp(pretty(C.expr));
+}
+function allClear(){C.expr='';C.isRes=false;updateDisp('0','');}
+function backspace(){
+  if(C.isRes){C.expr='';C.isRes=false;updateDisp('0','');return;}
+  const sp=['Math.PI','Math.E','Math.sin(','Math.cos(','Math.tan(','Math.asin(','Math.acos(','Math.atan(','Math.log10(','Math.log(','Math.sqrt(','Math.cbrt(','Math.exp(','Math.abs(','_fact('];
+  for(const s of sp)if(C.expr.endsWith(s)){C.expr=C.expr.slice(0,-s.length);updateDisp(pretty(C.expr)||'0');return;}
+  C.expr=C.expr.slice(0,-1);updateDisp(pretty(C.expr)||'0');
+}
+function toggleAng(){C.ang=C.ang==='deg'?'rad':'deg';document.getElementById('angBtn').textContent=C.ang.toUpperCase();save();}
+function mStore(){const v=parseFloat(document.getElementById('dispVal').textContent);if(!isNaN(v)){C.mem=v;C.hasMem=true;document.getElementById('memBadge').classList.add('show');}}
+function mRecall(){if(!C.hasMem)return;if(C.isRes)C.expr='';C.isRes=false;C.expr+=String(C.mem);updateDisp(pretty(C.expr));}
+function mClear(){C.mem=0;C.hasMem=false;document.getElementById('memBadge').classList.remove('show');}
+
+function getTrig(ang){
+  const D=ang==='deg'?Math.PI/180:1,R=ang==='deg'?180/Math.PI:1;
+  return{_sin:x=>Math.sin(x*D),_cos:x=>Math.cos(x*D),_tan:x=>Math.tan(x*D),_asin:x=>Math.asin(x)*R,_acos:x=>Math.acos(x)*R,_atan:x=>Math.atan(x)*R};
+}
+function fact(n){if(!Number.isFinite(n)||!Number.isInteger(n)||n<0)return NaN;if(n>170)return Infinity;let r=1;for(let i=2;i<=n;i++)r*=i;return r;}
+function rnd(n){
+  if(!isFinite(n))return n;
+  // Remove floating point noise up to 12 significant figures
+  const r=parseFloat(n.toPrecision(12));
+  // If very close to an integer, snap to it
+  const i=Math.round(r);
+  return Math.abs(r-i)<1e-10?i:r;
+}
+const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+function toSup(s){return String(s).split('').map(c=>SUP[c]||c).join('');}
+function fmtResult(n){
+  if(C.sci){
+    const e=n.toExponential(C.sf>0?C.sf-1:6);
+    return e.replace(/e\+?(-?)(\d+)/,(_,s,d)=>'×10'+toSup((s||'')+d));
+  }
+  if(C.sf>0)return parseFloat(n.toPrecision(C.sf)).toString();
+  return String(n);
+}
+
+function compute(){
+  if(!C.expr)return;
+  try{
+    let e=C.expr;
+    // Variable substitution
+    for(const[k,v]of Object.entries(VARS))e=e.replace(new RegExp('\\b'+k+'\\b','g'),'('+String(v)+')');
+    // Rename trig/math to safe angle-aware versions
+    e=e.replace(/Math\.asin\b/g,'_asin').replace(/Math\.acos\b/g,'_acos').replace(/Math\.atan\b/g,'_atan')
+       .replace(/Math\.sin\b/g,'_sin').replace(/Math\.cos\b/g,'_cos').replace(/Math\.tan\b/g,'_tan')
+       .replace(/Math\.log10\b/g,'_log10').replace(/Math\.log\b/g,'_ln')
+       .replace(/Math\.abs\b/g,'_abs')
+       .replace(/\^/g,'**');
+    const{_sin,_cos,_tan,_asin,_acos,_atan}=getTrig(C.ang);
+    const _log10=Math.log10,_ln=Math.log,_fact=fact,_abs=Math.abs;
+    const res=new Function('_sin','_cos','_tan','_asin','_acos','_atan','_log10','_ln','_fact','_abs',
+      '"use strict";return ('+e+');')(_sin,_cos,_tan,_asin,_acos,_atan,_log10,_ln,_fact,_abs);
+    if(typeof res!=='number'||Number.isNaN(res)){dispErr('Math Error');return;}
+    if(!isFinite(res)){dispErr(res>0?'+Infinity':'-Infinity');return;}
+    const raw=rnd(res),disp=fmtResult(raw);
+    const exprStr=pretty(C.expr)+' =';
+    history.unshift({expr:exprStr,val:disp,raw});
+    if(history.length>100)history.pop();
+    document.getElementById('dispExpr').textContent=exprStr;
+    C.expr=String(raw);updateDisp(disp);C.isRes=true;
+    renderHistList();save();
+  }catch(e){dispErr('Syntax Error');}
+}
+
+async function copyResult(){
+  try{await navigator.clipboard.writeText(document.getElementById('dispVal').textContent);toast('Copied!');}catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════════════════
+function toggleHist(){document.getElementById('histDraw').classList.toggle('open');renderHistList();}
+function renderHistList(){
+  const l=document.getElementById('histList');if(!l)return;
+  if(!history.length){l.innerHTML='<div style="padding:10px 14px;font-family:Space Mono,monospace;font-size:9px;color:var(--muted)">No history yet</div>';return;}
+  l.innerHTML=history.slice(0,20).map((h,i)=>`<div class="h-item" onclick="loadHist(${i})"><div class="h-expr">${h.expr}</div><div class="h-val">${h.val}</div></div>`).join('');
+}
+function loadHist(i){const h=history[i];C.expr=String(h.raw);C.isRes=true;updateDisp(h.val,h.expr);}
+function clearHist(){history=[];renderHistList();save();}
+
+// ═══════════════════════════════════════════════════════════════════
+//  VARIABLES
+// ═══════════════════════════════════════════════════════════════════
+function buildVars(){
+  const g=document.getElementById('vGrid');if(!g)return;
+  g.innerHTML=Object.entries(VARS).map(([k,v])=>`<div class="v-card" data-k="${k}"><div class="v-name">${k}</div><div class="v-val">${fmtSmall(v)}</div></div>`).join('');
+  g.querySelectorAll('.v-card').forEach(card=>{
+    let t;
+    const k=card.dataset.k;
+    card.addEventListener('click',()=>insertVar(k));
+    card.addEventListener('pointerdown',()=>{t=setTimeout(()=>{const v=prompt(`Set ${k} =`,VARS[k]);if(v!==null&&!isNaN(+v)){VARS[k]=+v;buildVars();save();}},500);});
+    card.addEventListener('pointerup',()=>clearTimeout(t));
+    card.addEventListener('pointerleave',()=>clearTimeout(t));
+  });
+}
+function insertVar(k){if(C.isRes)C.expr='';C.isRes=false;C.expr+=k;updateDisp(pretty(C.expr));}
+function toggleVars(){document.getElementById('varsPanel').classList.toggle('open');}
+function fmtSmall(n){if(Math.abs(n)>9999||(Math.abs(n)<0.001&&n!==0))return n.toExponential(2);return parseFloat(n.toPrecision(4)).toString();}
+
+// ═══════════════════════════════════════════════════════════════════
+//  GRAPH
+// ═══════════════════════════════════════════════════════════════════
+let gCtx,gCvs;
+function buildGFnRows(){
+  document.getElementById('gFnRows').innerHTML=G.fns.map((fn,i)=>`
+    <div class="g-fn-row"><div class="g-dot" style="background:${G.cols[i]}"></div>
+    <span class="g-label">f${i+1}(x)=</span>
+    <input class="g-inp" id="gf${i}" placeholder="${i===0?'e.g. sin(x)':'optional'}" value="${fn}" oninput="G.fns[${i}]=this.value">
+    </div>`).join('');
+}
+function initGraph(){
+  gCvs=document.getElementById('gCvs');gCtx=gCvs.getContext('2d');
+  resizeGCvs();
+  gCvs.addEventListener('wheel',e=>{e.preventDefault();zBy(e.deltaY>0?1.15:.87);},{passive:false});
+  gCvs.addEventListener('mousedown',e=>{G.drag=true;G.ds={x:e.clientX,y:e.clientY};G.vs={...G};});
+  gCvs.addEventListener('mousemove',e=>{if(!G.drag)return;panBy(e.clientX-G.ds.x,e.clientY-G.ds.y);});
+  gCvs.addEventListener('mouseup',()=>G.drag=false);
+  gCvs.addEventListener('mouseleave',()=>G.drag=false);
+  let td=null;
+  gCvs.addEventListener('touchstart',e=>{
+    if(e.touches.length===1){G.drag=true;G.ds={x:e.touches[0].clientX,y:e.touches[0].clientY};G.vs={...G};}
+    if(e.touches.length===2)td=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  },{passive:true});
+  gCvs.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    if(e.touches.length===1&&G.drag)panBy(e.touches[0].clientX-G.ds.x,e.touches[0].clientY-G.ds.y);
+    if(e.touches.length===2&&td){const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);zBy(td/nd);td=nd;}
+  },{passive:false});
+  gCvs.addEventListener('touchend',()=>{G.drag=false;td=null;});
+  plotGraph();
+}
+function resizeGCvs(){
+  const w=document.getElementById('gWrap');if(!w||!gCvs)return;
+  const r=w.getBoundingClientRect();
+  if(r.width===0||r.height===0)return;
+  const dpr=window.devicePixelRatio||1;
+  gCvs.width=r.width*dpr;gCvs.height=r.height*dpr;
+  gCvs.style.width=r.width+'px';gCvs.style.height=r.height+'px';
+  gCtx.setTransform(dpr,0,0,dpr,0,0);drawGraph();
+}
+let _rafPan=null;
+function panBy(dx,dy){
+  if(!G.vs)return;
+  const xR=G.vs.xMax-G.vs.xMin,yR=G.vs.yMax-G.vs.yMin;
+  const W=gCvs.width/(window.devicePixelRatio||1),H=gCvs.height/(window.devicePixelRatio||1);
+  G.xMin=G.vs.xMin-dx/W*xR;G.xMax=G.vs.xMax-dx/W*xR;
+  G.yMin=G.vs.yMin+dy/H*yR;G.yMax=G.vs.yMax+dy/H*yR;
+  if(_rafPan)cancelAnimationFrame(_rafPan);
+  _rafPan=requestAnimationFrame(()=>{drawGraph();_rafPan=null;});
+}
+function zIn(){zBy(.8);}function zOut(){zBy(1.25);}
+function zBy(f){const cx=(G.xMin+G.xMax)/2,cy=(G.yMin+G.yMax)/2;const xh=(G.xMax-G.xMin)/2*f,yh=(G.yMax-G.yMin)/2*f;G.xMin=cx-xh;G.xMax=cx+xh;G.yMin=cy-yh;G.yMax=cy+yh;drawGraph();}
+function resetView(){G.xMin=-10;G.xMax=10;G.yMin=-6;G.yMax=6;drawGraph();}
+function toggleGrid(){G.grid=!G.grid;document.getElementById('gridBtn').classList.toggle('on',G.grid);drawGraph();}
+function toggleLabels(){G.labels=!G.labels;document.getElementById('lblBtn').classList.toggle('on',G.labels);drawGraph();}
+function toggleGrRad(){G.rad=!G.rad;document.getElementById('radGrBtn').classList.toggle('on',G.rad);drawGraph();}
+function plotGraph(){for(let i=0;i<4;i++){const el=document.getElementById('gf'+i);if(el)G.fns[i]=el.value;}drawGraph();save();}
+
+function evalGFn(exprStr){
+  let e=exprStr.trim();if(!e)return null;
+  e=e.replace(/\^/g,'**').replace(/\bpi\b/gi,'Math.PI')
+    .replace(/\basin\b/g,'_asin').replace(/\bacos\b/g,'_acos').replace(/\batan\b/g,'_atan')
+    .replace(/\bsin\b/g,'_sin').replace(/\bcos\b/g,'_cos').replace(/\btan\b/g,'_tan')
+    .replace(/\bsqrt\b/g,'Math.sqrt').replace(/\bcbrt\b/g,'Math.cbrt')
+    .replace(/\babs\b/g,'Math.abs').replace(/\bexp\b/g,'Math.exp')
+    .replace(/\blog10\b/g,'Math.log10').replace(/\blog\b/g,'Math.log10')
+    .replace(/\bln\b/g,'Math.log').replace(/\bfloor\b/g,'Math.floor')
+    .replace(/\bceil\b/g,'Math.ceil').replace(/\bround\b/g,'Math.round')
+    .replace(/\bsgn\b/g,'Math.sign');
+  // Graph always uses radians for trig (standard math convention)
+  const _sin=Math.sin,_cos=Math.cos,_tan=Math.tan,_asin=Math.asin,_acos=Math.acos,_atan=Math.atan;
+  try{return new Function('x','_sin','_cos','_tan','_asin','_acos','_atan',`"use strict";try{return(${e});}catch(e){return NaN;}`);}
+  catch(e){return null;}
+}
+
+function niceStep(r){
+  if(!isFinite(r)||r<=0)return 1;
+  const m=Math.pow(10,Math.floor(Math.log10(r/5)));
+  const n=r/5/m;
+  return(n<2?1:n<4?2:n<8?5:10)*m;
+}
+
+function drawGraph(){
+  if(!gCtx||!gCvs)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=gCvs.width/dpr,H=gCvs.height/dpr;
+  const ctx=gCtx,dark=theme==='dark';
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=dark?'#191921':'#f7f7f2';ctx.fillRect(0,0,W,H);
+  const toSX=x=>(x-G.xMin)/(G.xMax-G.xMin)*W;
+  const toSY=y=>(1-(y-G.yMin)/(G.yMax-G.yMin))*H;
+  // Grid
+  if(G.grid){
+    ctx.strokeStyle=dark?'#28283a':'#deded6';ctx.lineWidth=1;
+    const xs=niceStep(G.xMax-G.xMin),ys=niceStep(G.yMax-G.yMin);
+    if(xs>0&&ys>0){
+      for(let x=Math.ceil(G.xMin/xs-1e-9)*xs;x<=G.xMax+1e-9;x+=xs){ctx.beginPath();ctx.moveTo(toSX(x),0);ctx.lineTo(toSX(x),H);ctx.stroke();}
+      for(let y=Math.ceil(G.yMin/ys-1e-9)*ys;y<=G.yMax+1e-9;y+=ys){ctx.beginPath();ctx.moveTo(0,toSY(y));ctx.lineTo(W,toSY(y));ctx.stroke();}
+      if(G.labels){
+        ctx.fillStyle=dark?'#484862':'#9898b8';ctx.font='8.5px "Space Mono",monospace';
+        ctx.textAlign='center';
+        for(let x=Math.ceil(G.xMin/xs-1e-9)*xs;x<=G.xMax+1e-9;x+=xs){if(Math.abs(x)<xs*0.01)continue;ctx.fillText(rnd(x),toSX(x),Math.min(H-3,Math.max(12,toSY(0)+12)));}
+        ctx.textAlign='right';
+        for(let y=Math.ceil(G.yMin/ys-1e-9)*ys;y<=G.yMax+1e-9;y+=ys){if(Math.abs(y)<ys*0.01)continue;ctx.fillText(rnd(y),Math.max(28,Math.min(W-4,toSX(0)-4)),toSY(y)+3);}
+      }
+    }
+  }
+  // Axes
+  ctx.strokeStyle=dark?'#545468':'#9898b8';ctx.lineWidth=1.5;
+  const ax=toSX(0),ay=toSY(0);
+  if(ax>=0&&ax<=W){ctx.beginPath();ctx.moveTo(ax,0);ctx.lineTo(ax,H);ctx.stroke();}
+  if(ay>=0&&ay<=H){ctx.beginPath();ctx.moveTo(0,ay);ctx.lineTo(W,ay);ctx.stroke();}
+  // Functions
+  const N=600;
+  const _sin=Math.sin,_cos=Math.cos,_tan=Math.tan,_asin=Math.asin,_acos=Math.acos,_atan=Math.atan;
+  G.fns.forEach((fStr,i)=>{
+    const fn=evalGFn(fStr);if(!fn)return;
+    ctx.strokeStyle=G.cols[i];ctx.lineWidth=2;ctx.beginPath();
+    let started=false,prevY=null;
+    for(let j=0;j<=N;j++){
+      const x=G.xMin+(G.xMax-G.xMin)*j/N;
+      const y=fn(x,_sin,_cos,_tan,_asin,_acos,_atan);
+      if(!isFinite(y)||isNaN(y)||Math.abs(y)>1e10){started=false;prevY=null;continue;}
+      // Discontinuity detection
+      if(prevY!==null&&Math.abs(y-prevY)>(G.yMax-G.yMin)*3){started=false;}
+      const sx=toSX(x),sy=toSY(y);
+      if(!started){ctx.moveTo(sx,sy);started=true;}else ctx.lineTo(sx,sy);
+      prevY=y;
+    }
+    ctx.stroke();
+  });
+  const infoEl=document.getElementById('gInfo');
+  if(infoEl)infoEl.textContent=`x: [${rnd(G.xMin)}, ${rnd(G.xMax)}]  y: [${rnd(G.yMin)}, ${rnd(G.yMax)}]  • trig in radians`;
+}
+
+function addTaylor(){
+  const fn=document.getElementById('tFn').value;
+  const n=Math.min(parseInt(document.getElementById('tOrd').value)||5,15);
+  const expr=taylorExpr(fn,n);
+  let slot=G.fns.findIndex((f,i)=>i>0&&!f.trim());if(slot===-1)slot=3;
+  G.fns[slot]=expr;document.getElementById('gf'+slot).value=expr;
+  plotGraph();toast(`Taylor series added to f${slot+1}`);
+}
+function taylorExpr(fn,n){
+  const f=k=>fact(k)||1; // guard fact(0)=1
+  switch(fn){
+    case'sin':{let t=[];for(let k=0;k<n&&2*k+1<=23;k++){const e=2*k+1,s=k%2?'-':'';t.push(`${s}x**${e}/${f(e)}`);}return t.join('+').replace(/\+-/g,'-')||'x';}
+    case'cos':{let t=[];for(let k=0;k<n&&2*k<=22;k++){const e=2*k,s=k%2?'-':'';t.push(`${s}${e?'x**'+e+'/'+f(e):'1'}`);}return t.join('+').replace(/\+-/g,'-')||'1';}
+    case'exp':{let t=[];for(let k=0;k<n&&k<=18;k++)t.push(`${k===0?'1':k===1?'x':'x**'+k}/${f(k)}`);return t.join('+')||'1';}
+    case'ln':{let t=[];for(let k=1;k<=n&&k<=20;k++)t.push(`${k%2===0?'-':''}x**${k}/${k}`);return t.join('+').replace(/\+-/g,'-')||'x';}
+    default:return'x';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  STATISTICS
+// ═══════════════════════════════════════════════════════════════════
+function parseData(){
+  return document.getElementById('stIn').value
+    .split(/[\s,\n]+/)
+    .filter(s=>s.trim()!=='')
+    .map(Number)
+    .filter(x=>!isNaN(x));
+}
+function computeStats(){
+  const data=parseData();if(!data.length){toast('No valid data');return;}
+  data.sort((a,b)=>a-b);
+  document.getElementById('stIn').value=data.join(', ');
+  const n=data.length,sum=data.reduce((a,b)=>a+b,0),mean=sum/n;
+  const med=n%2?data[Math.floor(n/2)]:(data[n/2-1]+data[n/2])/2;
+  const mode=calcMode(data);
+  const vari=data.reduce((a,x)=>a+(x-mean)**2,0)/n,sd=Math.sqrt(vari);
+  const q1=pct(data,25),q3=pct(data,75),iqr=q3-q1;
+  const sk=sd>0?data.reduce((a,x)=>a+(x-mean)**3,0)/n/sd**3:0;
+  const ku=vari>0?data.reduce((a,x)=>a+(x-mean)**4,0)/n/vari**2-3:0;
+  const f=x=>parseFloat(x.toPrecision(6)).toString();
+  document.getElementById('stRes').innerHTML=`
+    <div class="s-card hi"><div class="s-lbl">COUNT (n)</div><div class="s-v">${n}</div></div>
+    <div class="s-card hi"><div class="s-lbl">SUM</div><div class="s-v">${f(sum)}</div></div>
+    <div class="s-card"><div class="s-lbl">MEAN (μ)</div><div class="s-v">${f(mean)}</div></div>
+    <div class="s-card"><div class="s-lbl">MEDIAN</div><div class="s-v">${f(med)}</div></div>
+    <div class="s-card full"><div class="s-lbl">MODE</div><div class="s-v" style="font-size:13px">${mode}</div></div>
+    <div class="s-card"><div class="s-lbl">STD DEV (σ)</div><div class="s-v">${f(sd)}</div></div>
+    <div class="s-card"><div class="s-lbl">VARIANCE (σ²)</div><div class="s-v">${f(vari)}</div></div>
+    <div class="s-card"><div class="s-lbl">MIN</div><div class="s-v">${f(data[0])}</div></div>
+    <div class="s-card"><div class="s-lbl">MAX</div><div class="s-v">${f(data[n-1])}</div></div>
+    <div class="s-card"><div class="s-lbl">RANGE</div><div class="s-v">${f(data[n-1]-data[0])}</div></div>
+    <div class="s-card"><div class="s-lbl">Q1 (25%)</div><div class="s-v">${f(q1)}</div></div>
+    <div class="s-card"><div class="s-lbl">Q3 (75%)</div><div class="s-v">${f(q3)}</div></div>
+    <div class="s-card"><div class="s-lbl">IQR</div><div class="s-v">${f(iqr)}</div></div>
+    <div class="s-card"><div class="s-lbl">SKEWNESS</div><div class="s-v">${f(sk)}</div></div>
+    <div class="s-card"><div class="s-lbl">KURTOSIS</div><div class="s-v">${f(ku)}</div></div>
+    <div class="s-card full"><div class="s-lbl">SAMPLE STD DEV (s)</div><div class="s-v">${f(n>1?Math.sqrt(data.reduce((a,x)=>a+(x-mean)**2,0)/(n-1)):0)}</div></div>`;
+  document.getElementById('hWrap').style.display='block';drawHist(data);
+}
+function calcMode(s){
+  let mc=0,c=1,m=[],p=s[0];
+  for(let i=1;i<s.length;i++){if(s[i]===p)c++;else{if(c>mc){mc=c;m=[p];}else if(c===mc)m.push(p);c=1;p=s[i];}}
+  if(c>mc)m=[p];else if(c===mc)m.push(p);
+  return mc===1?'None (all unique)':m.map(x=>parseFloat(x.toPrecision(6))).join(', ');
+}
+function pct(s,p){const pos=(p/100)*(s.length-1),lo=Math.floor(pos),hi=Math.ceil(pos);return s[lo]+(s[hi]-s[lo])*(pos-lo);}
+function drawHist(data){
+  const cvs=document.getElementById('hCvs');if(!cvs)return;
+  const W=cvs.offsetWidth,H=cvs.offsetHeight||120;
+  const dpr=window.devicePixelRatio||1;cvs.width=W*dpr;cvs.height=H*dpr;
+  const ctx=cvs.getContext('2d');ctx.scale(dpr,dpr);
+  const bins=Math.min(Math.max(Math.ceil(Math.sqrt(data.length)),5),20);
+  const mn=data[0],mx=data[data.length-1],bw=(mx-mn)/bins||1;
+  const cnts=new Array(bins).fill(0);
+  data.forEach(x=>{let b=Math.min(Math.floor((x-mn)/bw),bins-1);cnts[b]++;});
+  const maxC=Math.max(...cnts);
+  if(maxC===0)return; // nothing to draw
+  const pL=5,pR=5,pT=8,pB=18,bW=(W-pL-pR)/bins;
+  const acc=getComputedStyle(document.documentElement).getPropertyValue('--acc').trim()||'#c8f560';
+  ctx.clearRect(0,0,W,H);
+  cnts.forEach((c,i)=>{
+    const bh=(c/maxC)*(H-pT-pB);const x=pL+i*bW;const y=H-pB-bh;
+    ctx.fillStyle=acc;ctx.globalAlpha=.8;
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x+1,y,bW-2,bh,3);else ctx.rect(x+1,y,bW-2,bh);
+    ctx.fill();ctx.globalAlpha=1;
+    if(i%Math.ceil(bins/6)===0){
+      ctx.fillStyle=theme==='dark'?'#484862':'#9898b8';ctx.font='7.5px "Space Mono",monospace';ctx.textAlign='center';
+      ctx.fillText(parseFloat((mn+i*bw).toPrecision(3)),x+bW/2,H-pB+12);
+    }
+  });
+}
+function sortStats(){const d=parseData();if(!d.length)return;d.sort((a,b)=>a-b);document.getElementById('stIn').value=d.join(', ');}
+function clearStats(){document.getElementById('stIn').value='';document.getElementById('stRes').innerHTML='<div class="s-card full" style="text-align:center;color:var(--muted);font-family:Space Mono,monospace;font-size:9px;letter-spacing:.08em;">ENTER DATA ABOVE TO SEE STATISTICS</div>';document.getElementById('hWrap').style.display='none';}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TOOLS PANEL
+// ═══════════════════════════════════════════════════════════════════
+const TOOL_LIST=[{id:'units',l:'UNITS'},{id:'base',l:'BASE/BIT'},{id:'matrix',l:'MATRIX'},{id:'eqs',l:'EQUATIONS'},{id:'complex',l:'COMPLEX'},{id:'numth',l:'NUMBER'},{id:'sigma',l:'Σ / Π'},{id:'integrate',l:'∫ INTEGRAL'},{id:'deriv',l:'f′ DERIV'},{id:'perms',l:'PERMS/COMBS'}];
+function buildToolTabs(){
+  document.getElementById('toolTabs').innerHTML=TOOL_LIST.map(t=>`<button class="ttab${t.id===activeTool?' on':''}" onclick="switchTool('${t.id}')">${t.l}</button>`).join('');
+}
+function switchTool(id){
+  activeTool=id;
+  document.querySelectorAll('.ttab').forEach((b,i)=>b.classList.toggle('on',TOOL_LIST[i].id===id));
+  renderTool(id);
+}
+function renderTool(id){
+  const c=document.getElementById('toolBody');
+  if(id==='units')c.innerHTML=buildUnitsHTML();
+  else if(id==='base')c.innerHTML=buildBaseHTML();
+  else if(id==='matrix'){c.innerHTML=buildMatHTML();initMatEv();}
+  else if(id==='eqs'){c.innerHTML=buildEqsHTML();renderEqForm();}
+  else if(id==='complex')c.innerHTML=buildComplexHTML();
+  else if(id==='numth')c.innerHTML=buildNumThHTML();
+  else if(id==='sigma')c.innerHTML=buildSigmaHTML();
+  else if(id==='integrate')c.innerHTML=buildIntHTML();
+  else if(id==='deriv')c.innerHTML=buildDerivHTML();
+  else if(id==='perms')c.innerHTML=buildPermsHTML();
+}
+
+/* ----- UNITS ----- */
+const UCAT={
+  length:{l:'Length',u:{m:1,km:1e3,cm:.01,mm:1e-3,mi:1609.344,yd:.9144,ft:.3048,in:.0254,nm:1e-9,μm:1e-6,ly:9.461e15}},
+  mass:{l:'Mass',u:{kg:1,g:.001,mg:1e-6,lb:.453592,oz:.0283495,t:1e3,st:6.35029,ug:1e-9}},
+  area:{l:'Area',u:{'m²':1,'km²':1e6,'cm²':1e-4,'mm²':1e-6,'mi²':2589988,'ft²':.0929,'in²':6.452e-4,acre:4046.86,ha:1e4}},
+  volume:{l:'Volume',u:{'m³':1,L:.001,mL:1e-6,'cm³':1e-6,gal:.00378541,qt:9.464e-4,pt:4.732e-4,cup:2.366e-4,'fl oz':2.957e-5,'ft³':.0283168}},
+  speed:{l:'Speed',u:{'m/s':1,'km/h':.27778,'mph':.44704,knot:.51444,'ft/s':.3048,'Mach':340.29}},
+  temp:{l:'Temp',u:null},
+  time:{l:'Time',u:{s:1,ms:.001,μs:1e-6,min:60,hr:3600,day:86400,wk:604800,mo:2629800,yr:31557600}},
+  energy:{l:'Energy',u:{J:1,kJ:1e3,cal:4.184,kcal:4184,Wh:3600,kWh:3.6e6,eV:1.602e-19,BTU:1055.06,'ft·lb':1.35582}},
+  pressure:{l:'Pressure',u:{Pa:1,kPa:1e3,MPa:1e6,bar:1e5,atm:101325,psi:6894.76,mmHg:133.322,torr:133.322}},
+  data:{l:'Data',u:{B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776,bit:.125,Kbit:128,Mbit:131072}},
+};
+function buildUnitsHTML(){
+  const cats=Object.entries(UCAT);
+  const btns=cats.map(([k,v])=>`<div class="ucat${k===uCat?' on':''}" onclick="setUCat('${k}')">${v.l}</div>`).join('');
+  if(uCat==='temp')return`<div class="ucat-wrap">${btns}</div><div class="t-sec-title">TEMPERATURE CONVERTER</div>
+    <div class="t-row"><span class="t-lbl">°C</span><input class="t-inp" id="tC" type="number" placeholder="Celsius" oninput="convTemp('C',this.value)"></div>
+    <div class="t-row"><span class="t-lbl">°F</span><input class="t-inp" id="tF" type="number" placeholder="Fahrenheit" oninput="convTemp('F',this.value)"></div>
+    <div class="t-row"><span class="t-lbl">K</span><input class="t-inp" id="tK" type="number" placeholder="Kelvin" oninput="convTemp('K',this.value)"></div>
+    <div class="t-row"><span class="t-lbl">°R</span><input class="t-inp" id="tR" type="number" placeholder="Rankine" oninput="convTemp('R',this.value)"></div>`;
+  const us=Object.keys(UCAT[uCat].u);
+  return`<div class="ucat-wrap">${btns}</div>
+    <div class="t-row">
+      <input class="t-inp" id="uVal" type="number" placeholder="Value" oninput="convUnit()" style="width:80px">
+      <select class="t-sel" id="uFrom" onchange="convUnit()">${us.map(u=>`<option>${u}</option>`).join('')}</select>
+      <span style="color:var(--muted);font-size:14px">→</span>
+      <select class="t-sel" id="uTo" onchange="convUnit()">${us.map((u,i)=>`<option${i===1?' selected':''}>${u}</option>`).join('')}</select>
+    </div>
+    <div class="t-res" id="uRes">—</div>`;
+}
+function setUCat(c){uCat=c;renderTool('units');}
+function convUnit(){
+  const v=parseFloat(document.getElementById('uVal').value);
+  if(isNaN(v)){document.getElementById('uRes').textContent='—';return;}
+  const fr=document.getElementById('uFrom').value,to=document.getElementById('uTo').value;
+  const cat=UCAT[uCat];const r=v*cat.u[fr]/cat.u[to];
+  document.getElementById('uRes').textContent=`${v} ${fr} = ${parseFloat(r.toPrecision(8))} ${to}`;
+}
+function convTemp(u,v){
+  v=parseFloat(v);if(isNaN(v))return;
+  let cel;
+  if(u==='C')cel=v;else if(u==='F')cel=(v-32)*5/9;else if(u==='K')cel=v-273.15;else cel=(v-491.67)*5/9;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=parseFloat(val.toPrecision(8));};
+  if(u!=='C')set('tC',cel);if(u!=='F')set('tF',cel*9/5+32);if(u!=='K')set('tK',cel+273.15);if(u!=='R')set('tR',(cel+273.15)*9/5);
+}
+
+/* ----- BASE CONVERTER ----- */
+function buildBaseHTML(){return`
+  <div class="t-sec-title">BASE CONVERTER</div>
+  <div class="t-row"><span class="t-lbl" style="width:36px">DEC</span><input class="t-inp" id="bDec" placeholder="Decimal" oninput="convBase('d',this.value)"></div>
+  <div class="t-row"><span class="t-lbl" style="width:36px">HEX</span><input class="t-inp" id="bHex" placeholder="Hex" style="text-transform:uppercase" oninput="convBase('h',this.value)"></div>
+  <div class="t-row"><span class="t-lbl" style="width:36px">OCT</span><input class="t-inp" id="bOct" placeholder="Octal" oninput="convBase('o',this.value)"></div>
+  <div class="t-row"><span class="t-lbl" style="width:36px">BIN</span><input class="t-inp" id="bBin" placeholder="Binary" oninput="convBase('b',this.value)"></div>
+  <div class="sep"></div>
+  <div class="t-sec-title">BITWISE OPERATIONS</div>
+  <div class="t-row">
+    <input class="t-inp" id="bwA" type="number" placeholder="A" style="width:70px">
+    <select class="t-sel" id="bwOp"><option>AND</option><option>OR</option><option>XOR</option><option>NOT A</option><option>LSHIFT</option><option>RSHIFT</option></select>
+    <input class="t-inp" id="bwB" type="number" placeholder="B" style="width:70px">
+    <button class="a-btn" onclick="doBitwise()">GO</button>
+  </div>
+  <div class="t-res txt" id="bwRes">—</div>
+`;}
+function convBase(fr,v){
+  if(!v.trim())return;let n;
+  try{n=fr==='d'?parseInt(v,10):fr==='h'?parseInt(v,16):fr==='o'?parseInt(v,8):parseInt(v,2);}catch(e){return;}
+  if(isNaN(n))return;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=val;};
+  if(fr!=='d')set('bDec',n.toString(10));if(fr!=='h')set('bHex',n.toString(16).toUpperCase());
+  if(fr!=='o')set('bOct',n.toString(8));if(fr!=='b')set('bBin',n.toString(2));
+}
+function doBitwise(){
+  const a=parseInt(document.getElementById('bwA').value)||0,b=parseInt(document.getElementById('bwB').value)||0;
+  const op=document.getElementById('bwOp').value;
+  let r;if(op==='AND')r=a&b;else if(op==='OR')r=a|b;else if(op==='XOR')r=a^b;
+  else if(op==='NOT A')r=~a;else if(op==='LSHIFT')r=a<<b;else r=a>>b;
+  const u=r>>>0;
+  document.getElementById('bwRes').innerHTML=`Result: <span class="hi">${r}</span><br>HEX: ${u.toString(16).toUpperCase()} | OCT: ${u.toString(8)} | BIN: ${u.toString(2)}`;
+}
+
+/* ----- MATRIX ----- */
+function buildMatHTML(){return`
+  <div class="t-row"><span class="t-lbl">SIZE:</span>
+    <div class="m-op${matSz===2?' on':''}" id="ms2" onclick="setMatSz(2)">2×2</div>
+    <div class="m-op${matSz===3?' on':''}" id="ms3" onclick="setMatSz(3)">3×3</div>
+  </div>
+  <div class="mat-wrap">
+    <div class="mat-block"><div class="mat-lbl">MATRIX A</div><div id="mA"></div></div>
+    <div class="mat-block"><div class="mat-lbl">MATRIX B</div><div id="mB"></div></div>
+  </div>
+  <div class="mat-ops">
+    <div class="m-op" onclick="mOp('dA')">det(A)</div><div class="m-op" onclick="mOp('dB')">det(B)</div>
+    <div class="m-op" onclick="mOp('iA')">A⁻¹</div><div class="m-op" onclick="mOp('iB')">B⁻¹</div>
+    <div class="m-op" onclick="mOp('mul')">A×B</div><div class="m-op" onclick="mOp('add')">A+B</div>
+    <div class="m-op" onclick="mOp('sub')">A−B</div><div class="m-op" onclick="mOp('trA')">tr(A)</div>
+    <div class="m-op" onclick="mOp('tpA')">Aᵀ</div><div class="m-op" onclick="mOp('rank')">rank(A)</div>
+  </div>
+  <div class="t-res txt" id="mRes">Select an operation</div>
+`;}
+function initMatEv(){renderMat();}
+function setMatSz(s){
+  matSz=s;
+  document.querySelectorAll('#ms2,#ms3').forEach(b=>b&&b.classList.remove('on'));
+  const btn=document.getElementById('ms'+s);if(btn)btn.classList.add('on');
+  renderMat();
+}
+function renderMat(){
+  ['mA','mB'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const g=document.createElement('div');g.className='mat-grid';g.style.gridTemplateColumns=`repeat(${matSz},1fr)`;
+    for(let r=0;r<matSz;r++)for(let c=0;c<matSz;c++){
+      const inp=document.createElement('input');inp.className='m-cell';inp.type='number';inp.placeholder='0';
+      g.appendChild(inp);
+    }
+    el.innerHTML='';el.appendChild(g);
+  });
+}
+function getMat(id){const inp=document.getElementById(id).querySelectorAll('input');const m=[];for(let r=0;r<matSz;r++){m[r]=[];for(let c=0;c<matSz;c++)m[r][c]=parseFloat(inp[r*matSz+c].value)||0;}return m;}
+function mOp(op){
+  const A=getMat('mA'),B=getMat('mB');let res='';
+  const fn=(n)=>isNaN(n)?'<span class="err">Err</span>':parseFloat(n.toPrecision(6)).toString();
+  const ms=(lbl,m)=>m?`${lbl} =<br>`+m.map(r=>'[ '+r.map(x=>fn(x).padStart(9)).join('  ')+' ]').join('<br>'):`<span class="err">${lbl}: not possible</span>`;
+  switch(op){
+    case'dA':res=`det(A) = <span class="hi">${fn(mDet(A))}</span>`;break;
+    case'dB':res=`det(B) = <span class="hi">${fn(mDet(B))}</span>`;break;
+    case'iA':res=ms('A⁻¹',mInv(A));break;case'iB':res=ms('B⁻¹',mInv(B));break;
+    case'mul':res=ms('A×B',mMul(A,B));break;
+    case'add':res=ms('A+B',A.map((r,i)=>r.map((x,j)=>x+B[i][j])));break;
+    case'sub':res=ms('A−B',A.map((r,i)=>r.map((x,j)=>x-B[i][j])));break;
+    case'trA':res=`trace(A) = <span class="hi">${fn(A.reduce((s,r,i)=>s+r[i],0))}</span>`;break;
+    case'tpA':res=ms('Aᵀ',A[0].map((_,i)=>A.map(r=>r[i])));break;
+    case'rank':res=`rank(A) = <span class="hi">${mRank(A)}</span>`;break;
+  }
+  document.getElementById('mRes').innerHTML=res;
+}
+function mDet(m){if(m.length===1)return m[0][0];if(m.length===2)return m[0][0]*m[1][1]-m[0][1]*m[1][0];return m[0].reduce((s,v,j)=>s+((j%2?-1:1)*v*mDet(m.slice(1).map(r=>r.filter((_,c)=>c!==j)))),0);}
+function mInv(m){const d=mDet(m);if(Math.abs(d)<1e-12)return null;const n=m.length;const adj=m.map((_,i)=>m[0].map((_,j)=>{const sub=m.filter((_,r)=>r!==i).map(r=>r.filter((_,c)=>c!==j));return((i+j)%2?-1:1)*mDet(sub);}));const adjT=adj[0].map((_,i)=>adj.map(r=>r[i]));return adjT.map(r=>r.map(x=>x/d));}
+function mMul(A,B){return A.map((_,i)=>A[0].map((_,j)=>A[i].reduce((s,_,k)=>s+A[i][k]*B[k][j],0)));}
+function mRank(m){
+  const a=m.map(r=>[...r]);let rank=0;
+  for(let col=0;col<matSz&&rank<matSz;col++){
+    let pr=-1;
+    for(let r=rank;r<matSz;r++)if(Math.abs(a[r][col])>1e-10){pr=r;break;}
+    if(pr===-1)continue;
+    [a[rank],a[pr]]=[a[pr],a[rank]];
+    const pv=a[rank][col];
+    a[rank]=a[rank].map(x=>x/pv);
+    for(let r=0;r<matSz;r++)if(r!==rank){const fac=a[r][col];a[r]=a[r].map((x,j)=>x-fac*a[rank][j]);}
+    rank++;
+  }
+  return rank;
+}
+
+/* ----- EQUATIONS ----- */
+function buildEqsHTML(){return`
+  <div class="eq-types">
+    <div class="eq-tb${eqType==='lin'?' on':''}" onclick="setEqType('lin')">LINEAR</div>
+    <div class="eq-tb${eqType==='quad'?' on':''}" onclick="setEqType('quad')">QUADRATIC</div>
+    <div class="eq-tb${eqType==='sys'?' on':''}" onclick="setEqType('sys')">2×2 SYSTEM</div>
+    <div class="eq-tb${eqType==='cubic'?' on':''}" onclick="setEqType('cubic')">CUBIC</div>
+  </div>
+  <div id="eqFrm"></div>
+  <div class="t-res txt" id="eqRes">Fill coefficients above and solve</div>
+`;}
+function setEqType(t){eqType=t;document.querySelectorAll('.eq-tb').forEach((b,i)=>b.classList.toggle('on',['lin','quad','sys','cubic'][i]===t));renderEqForm();}
+function renderEqForm(){
+  const f=document.getElementById('eqFrm');if(!f)return;
+  if(eqType==='lin')f.innerHTML=`<div class="t-sec-title">ax + b = 0</div>
+    <div class="eq-row"><input class="e-inp" id="la" placeholder="a" type="number"><span class="e-sym">x +</span><input class="e-inp" id="lb" placeholder="b" type="number"><span class="e-sym">= 0</span></div>
+    <button class="a-btn" style="width:100%;margin-bottom:12px" onclick="solveEq('lin')">SOLVE</button>`;
+  else if(eqType==='quad')f.innerHTML=`<div class="t-sec-title">ax² + bx + c = 0</div>
+    <div class="eq-row"><input class="e-inp" id="qa" placeholder="a" type="number"><span class="e-sym">x² +</span><input class="e-inp" id="qb" placeholder="b" type="number"><span class="e-sym">x +</span><input class="e-inp" id="qc" placeholder="c" type="number"><span class="e-sym">= 0</span></div>
+    <button class="a-btn" style="width:100%;margin-bottom:12px" onclick="solveEq('quad')">SOLVE</button>`;
+  else if(eqType==='sys')f.innerHTML=`<div class="t-sec-title">a₁x + b₁y = c₁ &nbsp; a₂x + b₂y = c₂</div>
+    <div class="eq-row"><input class="e-inp" id="sa1" placeholder="a₁" type="number"><span class="e-sym">x +</span><input class="e-inp" id="sb1" placeholder="b₁" type="number"><span class="e-sym">y =</span><input class="e-inp" id="sc1" placeholder="c₁" type="number"></div>
+    <div class="eq-row"><input class="e-inp" id="sa2" placeholder="a₂" type="number"><span class="e-sym">x +</span><input class="e-inp" id="sb2" placeholder="b₂" type="number"><span class="e-sym">y =</span><input class="e-inp" id="sc2" placeholder="c₂" type="number"></div>
+    <button class="a-btn" style="width:100%;margin-bottom:12px" onclick="solveEq('sys')">SOLVE</button>`;
+  else f.innerHTML=`<div class="t-sec-title">ax³ + bx² + cx + d = 0</div>
+    <div class="eq-row"><input class="e-inp" id="cba" placeholder="a" type="number"><span class="e-sym">x³ +</span><input class="e-inp" id="cbb" placeholder="b" type="number"><span class="e-sym">x² +</span><input class="e-inp" id="cbc" placeholder="c" type="number"><span class="e-sym">x +</span><input class="e-inp" id="cbd" placeholder="d" type="number"><span class="e-sym">= 0</span></div>
+    <button class="a-btn" style="width:100%;margin-bottom:12px" onclick="solveEq('cubic')">SOLVE</button>`;
+}
+function gN(id){const el=document.getElementById(id);if(!el)return 0;const v=parseFloat(el.value);return isNaN(v)?0:v;}
+function fN(n){return isNaN(n)?'<span class="err">Err</span>':parseFloat(n.toPrecision(8)).toString();}
+function solveEq(t){
+  const el=document.getElementById('eqRes');let r='';
+  if(t==='lin'){const a=gN('la'),b=gN('lb');r=a===0?(b===0?'Infinite solutions':'<span class="err">No solution</span>'):`x = <span class="hi">${fN(-b/a)}</span>`;}
+  else if(t==='quad'){
+    const a=gN('qa'),b=gN('qb'),c=gN('qc');if(a===0){r='<span class="err">a ≠ 0 required</span>';}
+    else{const d=b*b-4*a*c;if(d<0){const re=-b/(2*a),im=Math.sqrt(-d)/(2*a);r=`Complex roots:<br>x₁ = <span class="hi">${fN(re)} + ${fN(im)}i</span><br>x₂ = <span class="hi">${fN(re)} − ${fN(im)}i</span><br>Δ = <span class="err">${fN(d)}</span>`;}
+    else{const x1=(-b+Math.sqrt(d))/(2*a),x2=(-b-Math.sqrt(d))/(2*a);r=`x₁ = <span class="hi">${fN(x1)}</span><br>x₂ = <span class="hi">${fN(x2)}</span><br>Δ = <span class="hi">${fN(d)}</span><br>Sum = ${fN(x1+x2)} · Product = ${fN(x1*x2)}`;}}
+  }else if(t==='sys'){
+    const a1=gN('sa1'),b1=gN('sb1'),c1=gN('sc1'),a2=gN('sa2'),b2=gN('sb2'),c2=gN('sc2');
+    const D=a1*b2-a2*b1;
+    r=Math.abs(D)<1e-12?'<span class="err">No unique solution</span>':`x = <span class="hi">${fN((c1*b2-c2*b1)/D)}</span><br>y = <span class="hi">${fN((a1*c2-a2*c1)/D)}</span>`;
+  }else{// Cubic - numerical (Cardano)
+    const a=gN('cba'),b=gN('cbb'),c=gN('cbc'),d=gN('cbd');
+    if(a===0){r='<span class="err">a ≠ 0 required (use Quadratic)</span>';}
+    else{const roots=solveCubicNum(a,b,c,d);r=roots.map((x,i)=>`x${i+1} = <span class="hi">${x}</span>`).join('<br>');}
+  }
+  el.innerHTML=r;
+}
+function solveCubicNum(a,b,c,d){
+  b/=a;c/=a;d/=a;
+  const p=c-b*b/3, q=2*b*b*b/27-b*c/3+d;
+  const D=q*q/4+p*p*p/27;
+  const roots=[];
+  const eps=1e-9;
+  if(Math.abs(D)<eps){
+    // Three real roots (at least two equal)
+    const u=q>=0?-Math.cbrt(Math.abs(q/2)):Math.cbrt(Math.abs(q/2));
+    const r1=2*u-b/3, r2=-u-b/3;
+    roots.push(fN(r1));
+    if(Math.abs(r1-r2)>eps)roots.push(fN(r2));
+    else roots.push(fN(r2)); // triple root shows twice
+  }else if(D>eps){
+    // One real root, two complex
+    const sqD=Math.sqrt(D);
+    const u=Math.cbrt(-q/2+sqD), v=Math.cbrt(-q/2-sqD);
+    roots.push(fN(u+v-b/3));
+    const re=-(u+v)/2-b/3, im=Math.abs((u-v)*Math.sqrt(3)/2);
+    roots.push(`${fN(re)} + ${fN(im)}i`);
+    roots.push(`${fN(re)} − ${fN(im)}i`);
+  }else{
+    // Three distinct real roots (casus irreducibilis)
+    const r=Math.sqrt(Math.max(0,-p*p*p/27));
+    const theta=r>eps?Math.acos(Math.max(-1,Math.min(1,-q/(2*r)))):0;
+    const m=2*Math.cbrt(r);
+    [0,1,2].forEach(k=>roots.push(fN(m*Math.cos((theta+2*Math.PI*k)/3)-b/3)));
+  }
+  return roots;
+}
+
+/* ----- COMPLEX ----- */
+function buildComplexHTML(){return`
+  <div class="t-sec-title">COMPLEX NUMBERS — a + bi</div>
+  <div class="t-row"><span class="t-lbl">z₁ =</span><input class="t-inp" id="cA" type="number" placeholder="Re" style="width:70px"><span class="t-lbl">+</span><input class="t-inp" id="cB" type="number" placeholder="Im" style="width:70px"><span class="t-lbl">i</span></div>
+  <div class="t-row"><span class="t-lbl">z₂ =</span><input class="t-inp" id="cC" type="number" placeholder="Re" style="width:70px"><span class="t-lbl">+</span><input class="t-inp" id="cD" type="number" placeholder="Im" style="width:70px"><span class="t-lbl">i</span></div>
+  <div class="mat-ops">
+    <div class="m-op" onclick="cOp('add')">z₁+z₂</div><div class="m-op" onclick="cOp('sub')">z₁−z₂</div>
+    <div class="m-op" onclick="cOp('mul')">z₁×z₂</div><div class="m-op" onclick="cOp('div')">z₁÷z₂</div>
+    <div class="m-op" onclick="cOp('abs1')">|z₁|</div><div class="m-op" onclick="cOp('arg1')">arg(z₁)</div>
+    <div class="m-op" onclick="cOp('conj1')">z₁*</div><div class="m-op" onclick="cOp('pow')">z₁ⁿ</div>
+    <div class="m-op" onclick="cOp('sqrt1')">√z₁</div><div class="m-op" onclick="cOp('exp1')">e^z₁</div>
+    <div class="m-op" onclick="cOp('ln1')">ln(z₁)</div><div class="m-op" onclick="cOp('sin1')">sin(z₁)</div>
+  </div>
+  <div class="t-row" id="powRow" style="display:none"><span class="t-lbl">Power n:</span><input class="t-inp" id="pN" type="number" value="2" style="width:60px"></div>
+  <div class="t-res txt" id="cRes">Enter z₁ and z₂ above</div>
+`;}
+function cOp(op){
+  document.getElementById('powRow').style.display=op==='pow'?'flex':'none';
+  const a=gN('cA'),b=gN('cB'),c=gN('cC'),d=gN('cD');
+  const fC=(re,im)=>`<span class="hi">${fN(re)} ${im<0?'−':'+'} ${fN(Math.abs(im))}i</span>`;
+  let r='';
+  switch(op){
+    case'add':r='z₁+z₂ = '+fC(a+c,b+d);break;case'sub':r='z₁−z₂ = '+fC(a-c,b-d);break;
+    case'mul':r='z₁×z₂ = '+fC(a*c-b*d,a*d+b*c);break;
+    case'div':{const dn=c*c+d*d;r=dn<1e-12?'<span class="err">Division by zero</span>':'z₁÷z₂ = '+fC((a*c+b*d)/dn,(b*c-a*d)/dn);break;}
+    case'abs1':r=`|z₁| = <span class="hi">${fN(Math.sqrt(a*a+b*b))}</span>`;break;
+    case'arg1':r=`arg(z₁) = <span class="hi">${fN(Math.atan2(b,a))}</span> rad = <span class="hi">${fN(Math.atan2(b,a)*180/Math.PI)}°</span>`;break;
+    case'conj1':r='z₁* = '+fC(a,-b);break;
+    case'pow':{const n=gN('pN')||2,rr=Math.pow(Math.sqrt(a*a+b*b),n),th=Math.atan2(b,a)*n;r=`z₁^${n} = `+fC(rr*Math.cos(th),rr*Math.sin(th));break;}
+    case'sqrt1':{const rr=Math.sqrt(Math.sqrt(a*a+b*b)),th=Math.atan2(b,a)/2;r='√z₁ = '+fC(rr*Math.cos(th),rr*Math.sin(th));break;}
+    case'exp1':{const ea=Math.exp(a);r='e^z₁ = '+fC(ea*Math.cos(b),ea*Math.sin(b));break;}
+    case'ln1':r='ln(z₁) = '+fC(Math.log(Math.sqrt(a*a+b*b)),Math.atan2(b,a));break;
+    case'sin1':r='sin(z₁) = '+fC(Math.sin(a)*Math.cosh(b),Math.cos(a)*Math.sinh(b));break;
+  }
+  document.getElementById('cRes').innerHTML=r;
+}
+
+/* ----- NUMBER THEORY ----- */
+function buildNumThHTML(){return`
+  <div class="t-sec-title">GCD & LCM</div>
+  <div class="t-row"><input class="t-inp" id="gA" type="number" placeholder="a"><input class="t-inp" id="gB" type="number" placeholder="b"><button class="a-btn" onclick="doGCDLCM()">CALC</button></div>
+  <div class="t-res" id="gRes" style="margin-bottom:12px">—</div>
+  <div class="t-sec-title">PRIME & FACTORIZATION</div>
+  <div class="t-row"><input class="t-inp" id="prN" type="number" placeholder="n"><button class="a-btn" onclick="doPrime()">CHECK</button></div>
+  <div class="t-res txt" id="prRes" style="margin-bottom:12px">—</div>
+  <div class="t-sec-title">LIST FIRST N PRIMES (max 100)</div>
+  <div class="t-row"><input class="t-inp" id="plN" type="number" placeholder="N" style="width:80px"><button class="a-btn" onclick="listPrimes()">LIST</button></div>
+  <div class="t-res txt" id="plRes">—</div>
+`;}
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function isPrime(n){if(n<2)return false;if(n<4)return true;if(n%2===0||n%3===0)return false;for(let i=5;i*i<=n;i+=6)if(n%i===0||n%(i+2)===0)return false;return true;}
+function pFactors(n){const f=[];let d=2;while(d*d<=n){while(n%d===0){f.push(d);n/=d;}d++;}if(n>1)f.push(n);return f;}
+function divisors(n){const d=[];for(let i=1;i*i<=n;i++){if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}}return d.sort((a,b)=>a-b);}
+function eulerPhi(n){let r=n,tmp=n;for(let p=2;p*p<=tmp;p++){if(tmp%p===0){while(tmp%p===0)tmp/=p;r-=r/p;}}if(tmp>1)r-=r/tmp;return Math.round(r);}
+function doGCDLCM(){
+  const a=Math.abs(parseInt(gN('gA'))),b=Math.abs(parseInt(gN('gB')));
+  if(!a||!b){document.getElementById('gRes').textContent='Enter two positive integers';return;}
+  const g=gcd(a,b);document.getElementById('gRes').innerHTML=`GCD = <span class="hi">${g}</span> &nbsp; LCM = <span class="hi">${a/g*b}</span>`;
+}
+function doPrime(){
+  const n=Math.abs(parseInt(gN('prN')));if(!n)return;
+  const p=isPrime(n),f=pFactors(n),d=divisors(n);
+  document.getElementById('prRes').innerHTML=`<span class="${p?'hi':'err'}">${n} is ${p?'PRIME':'composite'}</span><br>Factors: ${f.join(' × ')||'1'}<br>All divisors: ${d.join(', ')}<br>φ(${n}) = ${eulerPhi(n)}<br>τ(${n}) = ${d.length} (# of divisors)`;
+}
+function listPrimes(){
+  const N=Math.min(parseInt(gN('plN'))||10,100);
+  const ps=[];let k=2;while(ps.length<N){if(isPrime(k))ps.push(k);k++;}
+  document.getElementById('plRes').textContent=ps.join(', ');
+}
+
+/* ----- SUMMATION ----- */
+function buildSigmaHTML(){return`
+  <div class="t-sec-title">SUMMATION Σ f(n) from a to b</div>
+  <div class="t-row"><span class="t-lbl">f(n) =</span><input class="t-inp" id="sfn" placeholder="e.g. n^2, 1/n, sin(n)" style="flex:1"></div>
+  <div class="t-row"><span class="t-lbl">n from</span><input class="t-inp" id="sA" type="number" value="1" style="width:65px"><span class="t-lbl">to</span><input class="t-inp" id="sB" type="number" value="10" style="width:65px"></div>
+  <div style="display:flex;gap:7px;margin-bottom:12px">
+    <button class="a-btn" style="flex:1" onclick="doSigma('sum')">Σ SUMMATION</button>
+    <button class="a-btn sec" style="flex:1" onclick="doSigma('prod')">Π PRODUCT</button>
+  </div>
+  <div class="t-res txt" id="sigRes">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">SERIES CONVERGENCE CHECK</div>
+  <div class="t-row"><span class="t-lbl">f(n) =</span><input class="t-inp" id="convFn" placeholder="e.g. 1/n^2" style="flex:1"></div>
+  <button class="a-btn sec" style="width:100%;margin-bottom:8px" onclick="checkConv()">CHECK (partial sum N=1000)</button>
+  <div class="t-res txt" id="convRes">—</div>
+`;}
+function evalSumFn(e){
+  let ex=e.replace(/\^/g,'**').replace(/\bsin\b/g,'Math.sin').replace(/\bcos\b/g,'Math.cos')
+    .replace(/\btan\b/g,'Math.tan').replace(/\bsqrt\b/g,'Math.sqrt').replace(/\babs\b/g,'Math.abs')
+    .replace(/\bln\b/g,'Math.log').replace(/\blog\b/g,'Math.log10').replace(/\bexp\b/g,'Math.exp')
+    .replace(/\bfloor\b/g,'Math.floor').replace(/\bceil\b/g,'Math.ceil').replace(/\bpi\b/gi,'Math.PI')
+    .replace(/\bfact\b/g,'_f');
+  return new Function('n','_f',`"use strict";try{return(${ex});}catch(e){return NaN;}`);
+}
+function doSigma(type){
+  const expr=document.getElementById('sfn').value.trim();
+  const a=parseInt(gN('sA'))||1,b=parseInt(gN('sB'))||10;if(!expr)return;
+  try{
+    const fn=evalSumFn(expr);let acc=type==='sum'?0:1,terms=[];
+    for(let n=a;n<=b&&terms.length<1000;n++){
+      const v=fn(n,fact);if(!isFinite(v)||isNaN(v)){terms.push(`f(${n})=⚠`);continue;}
+      if(type==='sum')acc+=v;else acc*=v;terms.push(`f(${n})=${parseFloat(v.toPrecision(4))}`);
+    }
+    const sym=type==='sum'?'Σ':'Π';
+    document.getElementById('sigRes').innerHTML=`${sym} = <span class="hi">${parseFloat(acc.toPrecision(12))}</span><br><span style="font-size:8.5px;color:var(--muted)">${terms.slice(0,10).join(' | ')}${terms.length>10?'…':''}</span>`;
+  }catch(e){document.getElementById('sigRes').innerHTML='<span class="err">Parse error</span>';}
+}
+function checkConv(){
+  const expr=document.getElementById('convFn').value.trim();if(!expr)return;
+  try{
+    const fn=evalSumFn(expr);let sum=0,prev=0;
+    for(let n=1;n<=1000;n++){const v=fn(n,fact);if(!isFinite(v)||isNaN(v))break;sum+=v;if(n===999)prev=sum;}
+    const diff=Math.abs(sum-prev);
+    document.getElementById('convRes').innerHTML=`Partial sum (N=1000): <span class="hi">${parseFloat(sum.toPrecision(8))}</span><br>Last term added: ${parseFloat(fn(1000,fact).toPrecision(4))}<br>${diff<0.001?'<span class="hi">Likely convergent</span>':'<span style="color:var(--acc4)">May diverge — sum still changing</span>'}`;
+  }catch(e){document.getElementById('convRes').innerHTML='<span class="err">Parse error</span>';}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  LIBRARY PANEL
+// ═══════════════════════════════════════════════════════════════════
+const LIB_LIST=[{id:'constants',l:'CONSTANTS'},{id:'formulas',l:'FORMULAS'},{id:'saved',l:'SAVED'},{id:'history',l:'HISTORY'},{id:'vars',l:'VARIABLES'},{id:'converters',l:'CONVERTERS'}];
+function buildLibTabs(){
+  document.getElementById('libTabs').innerHTML=LIB_LIST.map(t=>`<button class="ltab${t.id===activeLib?' on':''}" onclick="switchLib('${t.id}')">${t.l}</button>`).join('');
+}
+function switchLib(id){activeLib=id;document.querySelectorAll('.ltab').forEach((b,i)=>b.classList.toggle('on',LIB_LIST[i].id===id));renderLib(id);}
+function renderLib(id){
+  const b=document.getElementById('libBody');
+  if(id==='constants')renderConsts(b);else if(id==='formulas')renderFmls(b);
+  else if(id==='saved')renderSaved(b);else if(id==='history')renderFullHist(b);
+  else if(id==='vars')renderVarsLib(b);else if(id==='converters')renderConverters(b);
+}
+
+const CONSTS=[
+  {name:'Speed of Light',sym:'c',val:'299,792,458 m/s',ins:'299792458'},
+  {name:'Gravitational Const.',sym:'G',val:'6.674×10⁻¹¹ m³/kg·s²',ins:'6.674e-11'},
+  {name:'Planck Constant',sym:'h',val:'6.626×10⁻³⁴ J·s',ins:'6.626e-34'},
+  {name:'Reduced Planck (ℏ)',sym:'ℏ',val:'1.055×10⁻³⁴ J·s',ins:'1.055e-34'},
+  {name:'Boltzmann Constant',sym:'kB',val:'1.381×10⁻²³ J/K',ins:'1.381e-23'},
+  {name:'Avogadro Number',sym:'Nₐ',val:'6.022×10²³ /mol',ins:'6.022e23'},
+  {name:'Electron Charge',sym:'e',val:'1.602×10⁻¹⁹ C',ins:'1.602e-19'},
+  {name:'Electron Mass',sym:'mₑ',val:'9.109×10⁻³¹ kg',ins:'9.109e-31'},
+  {name:'Proton Mass',sym:'mₚ',val:'1.673×10⁻²⁷ kg',ins:'1.673e-27'},
+  {name:'Neutron Mass',sym:'mₙ',val:'1.675×10⁻²⁷ kg',ins:'1.675e-27'},
+  {name:'Bohr Radius',sym:'a₀',val:'5.292×10⁻¹¹ m',ins:'5.292e-11'},
+  {name:'Stefan-Boltzmann',sym:'σ',val:'5.671×10⁻⁸ W/m²K⁴',ins:'5.671e-8'},
+  {name:'Universal Gas Const.',sym:'R',val:'8.314 J/mol·K',ins:'8.314'},
+  {name:'Faraday Constant',sym:'F',val:'96,485 C/mol',ins:'96485'},
+  {name:'Vacuum Permittivity',sym:'ε₀',val:'8.854×10⁻¹² F/m',ins:'8.854e-12'},
+  {name:'Vacuum Permeability',sym:'μ₀',val:'1.257×10⁻⁶ H/m',ins:'1.257e-6'},
+  {name:'Fine-Structure Const.',sym:'α',val:'7.297×10⁻³',ins:'7.297e-3'},
+  {name:'Rydberg Constant',sym:'R∞',val:'1.097×10⁷ m⁻¹',ins:'1.0974e7'},
+  {name:'Atomic Mass Unit',sym:'u',val:'1.661×10⁻²⁷ kg',ins:'1.661e-27'},
+  {name:'Standard Gravity',sym:'g',val:'9.80665 m/s²',ins:'9.80665'},
+];
+function renderConsts(b){
+  b.innerHTML='<div style="margin-bottom:8px;font-family:Space Mono,monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;">CLICK TO INSERT INTO CALCULATOR</div>'+
+    CONSTS.map(c=>`<div class="c-card" onclick="insertConst2Calc('${c.ins}','${c.name}')"><div class="c-left"><div class="c-name">${c.name}</div><div class="c-sym">${c.sym}</div></div><div class="c-val">${c.val}</div></div>`).join('');
+}
+function insertConst2Calc(val,name){switchTab('calc');if(C.isRes)C.expr='';C.isRes=false;C.expr+=val;updateDisp(pretty(C.expr));document.getElementById('dispExpr').textContent='';toast('Inserted: '+name);}
+
+const FMLS={
+  'Geometry':[{n:'Circle Area',e:'π × r²'},{n:'Circle Circumference',e:'2πr'},{n:'Sphere Volume',e:'(4/3)πr³'},{n:'Sphere Surface',e:'4πr²'},{n:'Cylinder Volume',e:'πr²h'},{n:'Cone Volume',e:'(1/3)πr²h'},{n:'Triangle Area',e:'(1/2)bh'},{n:'Ellipse Area',e:'πab'},{n:'Trapezoid Area',e:'(a+b)h/2'}],
+  'Physics':[{n:'Kinetic Energy',e:'½mv²'},{n:'Potential Energy',e:'mgh'},{n:'Momentum',e:'p = mv'},{n:'Force (Newton)',e:'F = ma'},{n:'Work Done',e:'W = Fd'},{n:"Ohm's Law",e:'V = IR'},{n:'Electric Power',e:'P = VI = I²R'},{n:"Einstein's E=mc²",e:'E = mc²'},{n:'Wave Speed',e:'v = fλ'},{n:'Pressure',e:'P = F/A'},{n:'Density',e:'ρ = m/V'},{n:'Centripetal Force',e:'mv²/r'}],
+  'Finance':[{n:'Simple Interest',e:'I = Prt'},{n:'Compound Interest',e:'A = P(1+r/n)^(nt)'},{n:'Present Value',e:'PV = FV/(1+r)^n'},{n:'Future Value',e:'FV = PV(1+r)^n'},{n:'Rule of 72',e:'Years ≈ 72/r%'}],
+  'Statistics':[{n:'Mean',e:'Σx/n'},{n:'Variance',e:'Σ(x-μ)²/n'},{n:'Z-Score',e:'z = (x−μ)/σ'},{n:'Bayes Theorem',e:'P(A|B) = P(B|A)P(A)/P(B)'},{n:'Binomial Coeff.',e:'C(n,k) = n!/(k!(n-k)!)'}],
+  'Calculus':[{n:'Derivative of xⁿ',e:'d/dx(xⁿ) = nxⁿ⁻¹'},{n:'Chain Rule',e:"(f∘g)' = f'(g)·g'"},{n:"Power Rule",e:'∫xⁿdx = xⁿ⁺¹/(n+1)'},{n:'Exponential',e:'d/dx(eˣ) = eˣ'},{n:'Natural Log',e:'d/dx(ln x) = 1/x'}],
+};
+function renderFmls(b){
+  b.innerHTML=Object.entries(FMLS).map(([cat,fs])=>`<div class="fml-cat"><div class="fml-cat-title">${cat.toUpperCase()}</div>${fs.map(f=>`<div class="fml-card" onclick="toast('${f.e}')"><div class="fml-name">${f.n}</div><div class="fml-expr">${f.e}</div></div>`).join('')}</div>`).join('');
+}
+
+function renderSaved(b){
+  if(!saved.length){b.innerHTML='<div class="empty">No saved expressions yet.<br>Use Settings → Save Expression<br>to bookmark calculations.</div>';return;}
+  b.innerHTML=saved.map((s,i)=>`<div class="sv-item"><div style="flex:1"><div class="sv-name">${s.name}</div><div class="sv-expr">${s.expr}</div></div><div class="sv-val">${s.val}</div><button class="del" onclick="delSaved(${i})">✕</button></div>`).join('');
+}
+function delSaved(i){saved.splice(i,1);save();renderLib('saved');}
+
+function renderFullHist(b){
+  if(!history.length){b.innerHTML='<div class="empty">No history yet.<br>Calculations appear here<br>after pressing =.</div>';return;}
+  b.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="a-btn sec" onclick="clearHist();renderLib('history')">CLEAR ALL</button></div>`+
+    history.map((h,i)=>`<div class="sv-item" style="cursor:pointer" onclick="loadHistFromLib(${i})"><div style="flex:1"><div class="sv-expr">${h.expr}</div></div><div class="sv-val">${h.val}</div></div>`).join('');
+}
+function loadHistFromLib(i){const h=history[i];C.expr=String(h.raw);C.isRes=true;updateDisp(h.val,h.expr);switchTab('calc');}
+
+function renderVarsLib(b){
+  b.innerHTML=`<div style="font-family:Space Mono,monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;margin-bottom:12px;">CLICK NAME TO INSERT · EDIT VALUE IN FIELD</div>`+
+    Object.entries(VARS).map(([k,v])=>`<div class="sv-item"><span class="sv-name" style="font-family:Space Mono,monospace;font-size:16px;font-weight:700;color:var(--acc4);cursor:pointer;margin-right:6px" onclick="insertVar('${k}');switchTab('calc')">${k}</span><span style="color:var(--muted);margin-right:6px">=</span><input class="t-inp" type="number" value="${v}" style="width:110px" onchange="setVarLib('${k}',this.value)"></div>`).join('');
+}
+function setVarLib(k,v){if(!isNaN(+v)){VARS[k]=+v;buildVars();save();toast(k+'='+v);}}
+
+// ═══════════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg,dur=2200){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// Keyboard support
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+  const panel=document.getElementById('panel-calc');if(!panel.classList.contains('on'))return;
+  const k=e.key;
+  if(k>='0'&&k<='9')addDigit(k);
+  else if(k==='.')addDot();
+  else if(k==='+')addOp('+');
+  else if(k==='-')addOp('-');
+  else if(k==='*')addOp('*');
+  else if(k==='/'&&!e.ctrlKey){e.preventDefault();addOp('/');}
+  else if(k==='^')addOp('^');
+  else if(k==='(')addOp('(');
+  else if(k===')')addOp(')');
+  else if(k==='%'){e.preventDefault();addOp('%');}
+  else if(k==='Enter'||k==='=')compute();
+  else if(k==='Backspace')backspace();
+  else if(k==='Escape')allClear();
+});
+
+window.addEventListener('resize',()=>{if(document.getElementById('panel-graph').classList.contains('on'))resizeGCvs();});
+
+// Overlay close on backdrop click
+document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');}));
+
+// ═══════════════════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  FINANCE PANEL
+// ═══════════════════════════════════════════════════════════════════
+const FIN_LIST=[{id:'emi',l:'EMI/LOAN'},{id:'curr',l:'CURRENCY'},{id:'disc',l:'DISCOUNT'},{id:'tip',l:'TIP/BILL'},{id:'date',l:'DATE/AGE'}];
+let activeFin='emi';
+function buildFinTabs(){document.getElementById('finTabs').innerHTML=FIN_LIST.map(t=>`<button class="ttab${t.id===activeFin?' on':''}" onclick="switchFin('${t.id}')">${t.l}</button>`).join('');}
+function switchFin(id){activeFin=id;document.querySelectorAll('#finTabs .ttab').forEach((b,i)=>b.classList.toggle('on',FIN_LIST[i].id===id));renderFin(id);}
+function renderFin(id){
+  const c=document.getElementById('finBody');if(!c)return;
+  if(id==='emi')c.innerHTML=buildEMIHTML();else if(id==='curr')c.innerHTML=buildCurrHTML();
+  else if(id==='disc')c.innerHTML=buildDiscHTML();else if(id==='tip')c.innerHTML=buildTipHTML();
+  else c.innerHTML=buildDateHTML();
+}
+
+// ------ EMI / LOAN ------
+function buildEMIHTML(){return`
+  <div class="t-sec-title">LOAN / EMI CALCULATOR</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Principal</span><input class="t-inp" id="eP" type="number" placeholder="e.g. 500000"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Rate (% p.a.)</span><input class="t-inp" id="eR" type="number" placeholder="e.g. 8.5" step="0.1"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Tenure</span><input class="t-inp" id="eN" type="number" placeholder="e.g. 24" style="width:80px"><select class="t-sel" id="eTU" style="margin-left:4px"><option value="m">Months</option><option value="y">Years</option></select></div>
+  <button class="a-btn" style="width:100%;margin-bottom:10px" onclick="calcEMI()">CALCULATE EMI</button>
+  <div id="emiRes"></div>`;}
+function calcEMI(){
+  const P=+document.getElementById('eP').value||0;
+  const Rpa=+document.getElementById('eR').value||0;
+  const N0=+document.getElementById('eN').value||0;
+  const N=document.getElementById('eTU').value==='y'?N0*12:N0;
+  if(!Number.isFinite(P)||P<=0||!Number.isFinite(Rpa)||Rpa<0||!Number.isFinite(N0)||N0<=0){document.getElementById('emiRes').innerHTML='<div class="t-res err">Enter principal > 0, rate ≥ 0, and tenure > 0</div>';return;}
+  const r=Rpa/12/100;
+  const emi=r===0?P/N:P*r*Math.pow(1+r,N)/(Math.pow(1+r,N)-1);
+  const total=emi*N,interest=total-P;
+  let rows='<tr><th>Mo.</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>';
+  let bal=P;const maxR=Math.min(N,12);
+  for(let i=1;i<=maxR;i++){const ip=bal*r,pp=emi-ip;bal=Math.max(0,bal-pp);rows+=`<tr><td>${i}</td><td>${fn2(emi)}</td><td>${fn2(pp)}</td><td>${fn2(ip)}</td><td>${fn2(bal)}</td></tr>`;}
+  if(N>12)rows+=`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:5px">…${N-12} more months</td></tr>`;
+  document.getElementById('emiRes').innerHTML=`
+    <div class="fin-res"><div class="fin-res-l">MONTHLY EMI</div><div class="fin-res-v">${fn2(emi)}</div></div>
+    <div class="fin-grid">
+      <div class="fin-cell"><div class="fin-cell-l">TOTAL PAYMENT</div><div class="fin-cell-v">${fn2(total)}</div></div>
+      <div class="fin-cell"><div class="fin-cell-l">TOTAL INTEREST</div><div class="fin-cell-v" style="color:var(--acc3)">${fn2(interest)}</div></div>
+      <div class="fin-cell"><div class="fin-cell-l">PRINCIPAL</div><div class="fin-cell-v">${fn2(P)}</div></div>
+      <div class="fin-cell"><div class="fin-cell-l">INTEREST RATIO</div><div class="fin-cell-v">${(interest/total*100).toFixed(1)}%</div></div>
+    </div>
+    <div class="t-sec-title" style="margin-top:12px">AMORTIZATION (first 12 months)</div>
+    <div style="overflow-x:auto"><table class="amort">${rows}</table></div>`;}
+function fn2(n){return Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// ------ CURRENCY ------
+const CURR={USD:{n:'US Dollar',s:'$',f:'🇺🇸',r:1},EUR:{n:'Euro',s:'€',f:'🇪🇺',r:0.92},GBP:{n:'British Pound',s:'£',f:'🇬🇧',r:0.79},JPY:{n:'Japanese Yen',s:'¥',f:'🇯🇵',r:149.5},INR:{n:'Indian Rupee',s:'₹',f:'🇮🇳',r:83.2},AUD:{n:'Australian Dollar',s:'A$',f:'🇦🇺',r:1.53},CAD:{n:'Canadian Dollar',s:'C$',f:'🇨🇦',r:1.36},CHF:{n:'Swiss Franc',s:'Fr',f:'🇨🇭',r:0.90},CNY:{n:'Chinese Yuan',s:'¥',f:'🇨🇳',r:7.24},MXN:{n:'Mexican Peso',s:'$',f:'🇲🇽',r:17.2},SGD:{n:'Singapore Dollar',s:'S$',f:'🇸🇬',r:1.34},HKD:{n:'Hong Kong Dollar',s:'HK$',f:'🇭🇰',r:7.82},KRW:{n:'Korean Won',s:'₩',f:'🇰🇷',r:1325},BRL:{n:'Brazilian Real',s:'R$',f:'🇧🇷',r:4.97},ZAR:{n:'S. African Rand',s:'R',f:'🇿🇦',r:18.6},SAR:{n:'Saudi Riyal',s:'﷼',f:'🇸🇦',r:3.75},AED:{n:'UAE Dirham',s:'د.إ',f:'🇦🇪',r:3.67},TRY:{n:'Turkish Lira',s:'₺',f:'🇹🇷',r:30.5},SEK:{n:'Swedish Krona',s:'kr',f:'🇸🇪',r:10.4},NZD:{n:'New Zealand $',s:'NZ$',f:'🇳🇿',r:1.63},THB:{n:'Thai Baht',s:'฿',f:'🇹🇭',r:35.1},MYR:{n:'Malaysian Ringgit',s:'RM',f:'🇲🇾',r:4.72},IDR:{n:'Indonesian Rupiah',s:'Rp',f:'🇮🇩',r:15750},PHP:{n:'Philippine Peso',s:'₱',f:'🇵🇭',r:56.5},EGP:{n:'Egyptian Pound',s:'E£',f:'🇪🇬',r:30.9},PKR:{n:'Pakistani Rupee',s:'₨',f:'🇵🇰',r:280},BDT:{n:'Bangladeshi Taka',s:'৳',f:'🇧🇩',r:110},NGN:{n:'Nigerian Naira',s:'₦',f:'🇳🇬',r:800},RUB:{n:'Russian Ruble',s:'₽',f:'🇷🇺',r:90},QAR:{n:'Qatari Riyal',s:'﷼',f:'🇶🇦',r:3.64}};
+function buildCurrHTML(){
+  const opts=Object.entries(CURR).map(([k,v])=>`<option value="${k}">${v.f} ${k} — ${v.n}</option>`).join('');
+  return`<div class="warn-note">⚠ Approximate 2024 rates. Enable live rates via ExchangeRate-API in Settings.</div>
+    <div class="t-row"><input class="t-inp" id="cAmt" type="number" placeholder="Amount" oninput="convCurr()"></div>
+    <div class="t-row">
+      <select class="t-sel" id="cFr" onchange="convCurr()" style="flex:1">${opts}</select>
+      <button class="g-btn" onclick="swapCurr()" style="padding:6px 12px;font-size:16px">⇄</button>
+      <select class="t-sel" id="cTo" onchange="convCurr()" style="flex:1">${opts.replace('value="USD"','value="USD"').replace('value="INR"','value="INR" selected')}</select>
+    </div>
+    <div class="t-res" id="cRes" style="font-size:19px;text-align:center;padding:14px;min-height:52px">—</div>
+    <div id="cRateInfo" style="font-family:Space Mono,monospace;font-size:8px;color:var(--muted);text-align:center;margin-top:4px"></div>
+    <div class="sep"></div>
+    <div class="t-sec-title">QUICK CONVERT (popular pairs)</div>
+    <div id="cQuick" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>`;}
+function convCurr(){
+  const v=parseFloat(document.getElementById('cAmt').value);
+  if(isNaN(v)){document.getElementById('cRes').textContent='—';return;}
+  const fr=document.getElementById('cFr').value,to=document.getElementById('cTo').value;
+  const r=v/CURR[fr].r*CURR[to].r;
+  document.getElementById('cRes').textContent=`${CURR[to].s}${r.toLocaleString(undefined,{maximumFractionDigits:4})}`;
+  document.getElementById('cRateInfo').textContent=`1 ${fr} = ${(CURR[to].r/CURR[fr].r).toFixed(6)} ${to}`;
+  const pairs=[['USD','INR'],['USD','EUR'],['USD','GBP'],['USD','AED']];
+  document.getElementById('cQuick').innerHTML=pairs.map(([a,b])=>{const rate=(1/CURR[a].r*CURR[b].r).toFixed(4);return`<div class="fin-cell"><div class="fin-cell-l">1 ${a}</div><div class="fin-cell-v">${rate} ${b}</div></div>`;}).join('');
+}
+function swapCurr(){const f=document.getElementById('cFr'),t=document.getElementById('cTo');[f.value,t.value]=[t.value,f.value];convCurr();}
+
+// ------ DISCOUNT & GST ------
+function buildDiscHTML(){return`
+  <div class="t-sec-title">DISCOUNT CALCULATOR</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Original Price</span><input class="t-inp" id="dP" type="number" placeholder="Price" oninput="calcDisc()"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Discount %</span><input class="t-inp" id="dD" type="number" placeholder="e.g. 20" step="0.5" oninput="calcDisc()"></div>
+  <div class="t-res txt" id="dRes" style="margin-bottom:12px">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">GST / VAT CALCULATOR</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">Amount</span><input class="t-inp" id="gAmt" type="number" placeholder="Amount" oninput="calcGST()"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:110px">GST Rate %</span><input class="t-inp" id="gRate" type="number" placeholder="e.g. 18" step="0.5" oninput="calcGST()">
+    <select class="t-sel" id="gDir" onchange="calcGST()"><option value="add">Add GST</option><option value="rem">Remove GST</option></select></div>
+  <div class="t-res txt" id="gRes">—</div>`;}
+function calcDisc(){
+  const pv=document.getElementById('dP').value,dv=document.getElementById('dD').value;
+  if(pv===''||dv===''){document.getElementById('dRes').innerHTML='';return;}
+  const p=Number(pv),d=Number(dv);
+  if(!Number.isFinite(p)||!Number.isFinite(d)||p<0||d<0||d>100){document.getElementById('dRes').innerHTML='<span class="err">Enter price ≥ 0 and discount between 0% and 100%</span>';return;}
+  const save=p*d/100,sale=p-save;
+  document.getElementById('dRes').innerHTML=`<span class="hi">Sale: ${fn2(sale)}</span>  ·  Savings: <span style="color:var(--acc3)">${fn2(save)}</span> (${d}% off)`;
+}
+function calcGST(){
+  const av=document.getElementById('gAmt').value,rv=document.getElementById('gRate').value;
+  if(av===''||rv==='' ){document.getElementById('gRes').innerHTML='—';return;}
+  const a=Number(av),r=Number(rv);
+  if(!Number.isFinite(a)||!Number.isFinite(r)||a<0||r<0){document.getElementById('gRes').innerHTML='<span class="err">Enter valid non-negative amount and GST rate</span>';return;}
+  const dir=document.getElementById('gDir').value;
+  if(dir==='add'){const tax=a*r/100;document.getElementById('gRes').innerHTML=`Base: ${fn2(a)}  ·  GST: <span class="hi">${fn2(tax)}</span>  ·  Total: <span class="hi">${fn2(a+tax)}</span>`;}
+  else{const base=a*100/(100+r),tax=a-base;document.getElementById('gRes').innerHTML=`Base: <span class="hi">${fn2(base)}</span>  ·  GST: ${fn2(tax)}  ·  Given Total: ${fn2(a)}`;}
+}
+
+// ------ TIP & BILL SPLITTER ------
+function buildTipHTML(){return`
+  <div class="t-sec-title">TIP & BILL SPLITTER</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:90px">Bill Total</span><input class="t-inp" id="tB" type="number" placeholder="e.g. 1200" oninput="calcTip()"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:90px">Tip %</span>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;flex:1">${[5,10,15,18,20,25].map(t=>`<div class="g-btn" id="tipB${t}" onclick="setTip(${t})">${t}%</div>`).join('')}<input class="t-inp" id="tTip" type="number" placeholder="Custom" oninput="calcTip()" style="width:65px;flex:0"></div></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:90px">Split among</span><input class="t-inp" id="tPpl" type="number" value="2" min="1" oninput="calcTip()" style="width:70px"><span class="t-lbl">people</span></div>
+  <div id="tipRes"></div>`;}
+function setTip(v){document.getElementById('tTip').value=v;[5,10,15,18,20,25].forEach(t=>{const b=document.getElementById('tipB'+t);if(b)b.classList.toggle('on',t===v);});calcTip();}
+function calcTip(){
+  const bill=+document.getElementById('tB').value||0,tip=+document.getElementById('tTip').value||0,ppl=Math.max(1,+document.getElementById('tPpl').value||1);
+  if(!bill){document.getElementById('tipRes').innerHTML='';return;}
+  const tipAmt=bill*tip/100,total=bill+tipAmt,pp=total/ppl;
+  document.getElementById('tipRes').innerHTML=`<div class="fin-res"><div class="fin-res-l">PER PERSON</div><div class="fin-res-v">${fn2(pp)}</div></div>
+    <div class="fin-grid"><div class="fin-cell"><div class="fin-cell-l">BILL</div><div class="fin-cell-v">${fn2(bill)}</div></div><div class="fin-cell"><div class="fin-cell-l">TIP (${tip}%)</div><div class="fin-cell-v">${fn2(tipAmt)}</div></div><div class="fin-cell"><div class="fin-cell-l">TOTAL</div><div class="fin-cell-v">${fn2(total)}</div></div><div class="fin-cell"><div class="fin-cell-l">PEOPLE</div><div class="fin-cell-v">${ppl}</div></div></div>`;}
+
+// ------ DATE & AGE ------
+function buildDateHTML(){return`
+  <div class="t-sec-title">AGE CALCULATOR</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:80px">Date of Birth</span><input class="t-inp" id="dDOB" type="date" onchange="calcAge()"></div>
+  <div class="t-res txt" id="ageRes" style="margin-bottom:12px">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">DATE DIFFERENCE</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:50px">From</span><input class="t-inp" id="dD1" type="date" onchange="calcDiff()"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:50px">To</span><input class="t-inp" id="dD2" type="date" onchange="calcDiff()"></div>
+  <div class="t-res txt" id="diffRes" style="margin-bottom:12px">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">ADD / SUBTRACT DAYS</div>
+  <div class="t-row"><input class="t-inp" id="dBase" type="date"><select class="t-sel" id="dOp"><option>Add</option><option>Subtract</option></select><input class="t-inp" id="dDays" type="number" placeholder="Days" style="width:80px"><button class="a-btn" onclick="calcAddDays()">GO</button></div>
+  <div class="t-res txt" id="addDayRes">—</div>`;}
+function calcAge(){
+  const dob=new Date(document.getElementById('dDOB').value);if(isNaN(dob))return;
+  const now=new Date();let y=now.getFullYear()-dob.getFullYear(),m=now.getMonth()-dob.getMonth(),d=now.getDate()-dob.getDate();
+  if(d<0){m--;d+=new Date(now.getFullYear(),now.getMonth(),0).getDate();}if(m<0){y--;m+=12;}
+  const td=Math.floor((now-dob)/864e5);
+  const nb=new Date(now.getFullYear(),dob.getMonth(),dob.getDate());if(nb<now)nb.setFullYear(nb.getFullYear()+1);
+  document.getElementById('ageRes').innerHTML=`<span class="hi">${y} yrs ${m} mo ${d} days</span><br>Total: ${td.toLocaleString()} days · Next birthday in ${Math.floor((nb-now)/864e5)} days`;
+}
+function calcDiff(){
+  const a=new Date(document.getElementById('dD1').value),b=new Date(document.getElementById('dD2').value);
+  if(isNaN(a)||isNaN(b))return;
+  const days=Math.round(Math.abs(b-a)/864e5);
+  document.getElementById('diffRes').innerHTML=`<span class="hi">${days} days</span> · ${Math.floor(days/7)} weeks · ${Math.floor(days/30.44)} months · ${(days/365.25).toFixed(2)} years`;
+}
+function calcAddDays(){
+  const base=new Date(document.getElementById('dBase').value);if(isNaN(base))return;
+  const d=+document.getElementById('dDays').value||0,op=document.getElementById('dOp').value;
+  const r=new Date(base);r.setDate(r.getDate()+(op==='Add'?d:-d));
+  document.getElementById('addDayRes').innerHTML=`Result: <span class="hi">${r.toDateString()}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SCIENCE PANEL
+// ═══════════════════════════════════════════════════════════════════
+const SCI_LIST=[{id:'elements',l:'ELEMENTS'},{id:'kinematics',l:'KINEMATICS'},{id:'electrical',l:'ELECTRICAL'},{id:'vectors',l:'VECTORS'}];
+let activeSci='elements';
+function buildSciTabs(){document.getElementById('sciTabs').innerHTML=SCI_LIST.map(t=>`<button class="ttab${t.id===activeSci?' on':''}" onclick="switchSci('${t.id}')">${t.l}</button>`).join('');}
+function switchSci(id){activeSci=id;document.querySelectorAll('#sciTabs .ttab').forEach((b,i)=>b.classList.toggle('on',SCI_LIST[i].id===id));renderSci(id);}
+function renderSci(id){
+  const c=document.getElementById('sciBody');if(!c)return;
+  if(id==='elements')renderPT(c);else if(id==='kinematics')c.innerHTML=buildKinHTML();
+  else if(id==='electrical')c.innerHTML=buildElecHTML();else c.innerHTML=buildVecHTML();
+  if(id==='vectors')buildVecInputs();
+}
+
+// ------ PERIODIC TABLE ------
+// [n, sym, name, mass, blk, grp, per]
+const ELS=[[1,'H','Hydrogen',1.008,'s',1,1],[2,'He','Helium',4.003,'s',18,1],[3,'Li','Lithium',6.941,'s',1,2],[4,'Be','Beryllium',9.012,'s',2,2],[5,'B','Boron',10.811,'p',13,2],[6,'C','Carbon',12.011,'p',14,2],[7,'N','Nitrogen',14.007,'p',15,2],[8,'O','Oxygen',15.999,'p',16,2],[9,'F','Fluorine',18.998,'p',17,2],[10,'Ne','Neon',20.18,'p',18,2],[11,'Na','Sodium',22.99,'s',1,3],[12,'Mg','Magnesium',24.305,'s',2,3],[13,'Al','Aluminum',26.982,'p',13,3],[14,'Si','Silicon',28.086,'p',14,3],[15,'P','Phosphorus',30.974,'p',15,3],[16,'S','Sulfur',32.065,'p',16,3],[17,'Cl','Chlorine',35.453,'p',17,3],[18,'Ar','Argon',39.948,'p',18,3],[19,'K','Potassium',39.098,'s',1,4],[20,'Ca','Calcium',40.078,'s',2,4],[21,'Sc','Scandium',44.956,'d',3,4],[22,'Ti','Titanium',47.867,'d',4,4],[23,'V','Vanadium',50.942,'d',5,4],[24,'Cr','Chromium',51.996,'d',6,4],[25,'Mn','Manganese',54.938,'d',7,4],[26,'Fe','Iron',55.845,'d',8,4],[27,'Co','Cobalt',58.933,'d',9,4],[28,'Ni','Nickel',58.693,'d',10,4],[29,'Cu','Copper',63.546,'d',11,4],[30,'Zn','Zinc',65.38,'d',12,4],[31,'Ga','Gallium',69.723,'p',13,4],[32,'Ge','Germanium',72.631,'p',14,4],[33,'As','Arsenic',74.922,'p',15,4],[34,'Se','Selenium',78.971,'p',16,4],[35,'Br','Bromine',79.904,'p',17,4],[36,'Kr','Krypton',83.798,'p',18,4],[37,'Rb','Rubidium',85.468,'s',1,5],[38,'Sr','Strontium',87.62,'s',2,5],[39,'Y','Yttrium',88.906,'d',3,5],[40,'Zr','Zirconium',91.224,'d',4,5],[41,'Nb','Niobium',92.906,'d',5,5],[42,'Mo','Molybdenum',95.96,'d',6,5],[43,'Tc','Technetium',98,'d',7,5],[44,'Ru','Ruthenium',101.07,'d',8,5],[45,'Rh','Rhodium',102.906,'d',9,5],[46,'Pd','Palladium',106.42,'d',10,5],[47,'Ag','Silver',107.868,'d',11,5],[48,'Cd','Cadmium',112.411,'d',12,5],[49,'In','Indium',114.818,'p',13,5],[50,'Sn','Tin',118.71,'p',14,5],[51,'Sb','Antimony',121.76,'p',15,5],[52,'Te','Tellurium',127.6,'p',16,5],[53,'I','Iodine',126.904,'p',17,5],[54,'Xe','Xenon',131.293,'p',18,5],[55,'Cs','Cesium',132.905,'s',1,6],[56,'Ba','Barium',137.327,'s',2,6],[57,'La','Lanthanum',138.905,'f',3,6],[72,'Hf','Hafnium',178.49,'d',4,6],[73,'Ta','Tantalum',180.948,'d',5,6],[74,'W','Tungsten',183.84,'d',6,6],[75,'Re','Rhenium',186.207,'d',7,6],[76,'Os','Osmium',190.23,'d',8,6],[77,'Ir','Iridium',192.217,'d',9,6],[78,'Pt','Platinum',195.084,'d',10,6],[79,'Au','Gold',196.967,'d',11,6],[80,'Hg','Mercury',200.59,'d',12,6],[81,'Tl','Thallium',204.383,'p',13,6],[82,'Pb','Lead',207.2,'p',14,6],[83,'Bi','Bismuth',208.98,'p',15,6],[84,'Po','Polonium',209,'p',16,6],[85,'At','Astatine',210,'p',17,6],[86,'Rn','Radon',222,'p',18,6],[87,'Fr','Francium',223,'s',1,7],[88,'Ra','Radium',226,'s',2,7],[89,'Ac','Actinium',227,'f',3,7],[104,'Rf','Rutherfordium',265,'d',4,7],[105,'Db','Dubnium',268,'d',5,7],[106,'Sg','Seaborgium',271,'d',6,7],[107,'Bh','Bohrium',270,'d',7,7],[108,'Hs','Hassium',277,'d',8,7],[109,'Mt','Meitnerium',278,'d',9,7],[110,'Ds','Darmstadtium',281,'d',10,7],[111,'Rg','Roentgenium',282,'d',11,7],[112,'Cn','Copernicium',285,'d',12,7],[113,'Nh','Nihonium',286,'p',13,7],[114,'Fl','Flerovium',289,'p',14,7],[115,'Mc','Moscovium',290,'p',15,7],[116,'Lv','Livermorium',293,'p',16,7],[117,'Ts','Tennessine',294,'p',17,7],[118,'Og','Oganesson',294,'p',18,7],[58,'Ce','Cerium',140.116,'f',null,8],[59,'Pr','Praseodymium',140.908,'f',null,8],[60,'Nd','Neodymium',144.242,'f',null,8],[61,'Pm','Promethium',145,'f',null,8],[62,'Sm','Samarium',150.36,'f',null,8],[63,'Eu','Europium',151.964,'f',null,8],[64,'Gd','Gadolinium',157.25,'f',null,8],[65,'Tb','Terbium',158.925,'f',null,8],[66,'Dy','Dysprosium',162.5,'f',null,8],[67,'Ho','Holmium',164.93,'f',null,8],[68,'Er','Erbium',167.259,'f',null,8],[69,'Tm','Thulium',168.934,'f',null,8],[70,'Yb','Ytterbium',173.054,'f',null,8],[71,'Lu','Lutetium',174.967,'f',null,8],[90,'Th','Thorium',232.038,'f',null,9],[91,'Pa','Protactinium',231.036,'f',null,9],[92,'U','Uranium',238.029,'f',null,9],[93,'Np','Neptunium',237,'f',null,9],[94,'Pu','Plutonium',244,'f',null,9],[95,'Am','Americium',243,'f',null,9],[96,'Cm','Curium',247,'f',null,9],[97,'Bk','Berkelium',247,'f',null,9],[98,'Cf','Californium',251,'f',null,9],[99,'Es','Einsteinium',252,'f',null,9],[100,'Fm','Fermium',257,'f',null,9],[101,'Md','Mendelevium',258,'f',null,9],[102,'No','Nobelium',259,'f',null,9],[103,'Lr','Lawrencium',266,'f',null,9]];
+const EL_CATS={s:'Alkali/Alkaline',p:'Non-metal/Halogen',d:'Transition Metal',f:'Lanthanide/Actinide'};
+let selEl=null;
+function renderPT(c){
+  // Build 18-col × 9-row grid
+  const grid=Array.from({length:9},()=>Array(18).fill(null));
+  ELS.forEach(e=>{const[n,sym,nm,m,blk,grp,per]=e;if(grp!==null){grid[per-1][grp-1]=e;}else grid[per-1].push(e);}); // f-block rows
+  let html='<div style="font-family:Space Mono,monospace;font-size:8px;color:var(--muted);margin-bottom:6px;display:flex;gap:10px;flex-wrap:wrap">';
+  ['s','p','d','f'].forEach(b=>html+=`<span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(${b==='s'?'96,224,245':b==='p'?'200,245,96':b==='d'?'245,168,96':'245,96,168'},.4);margin-right:3px"></span>${EL_CATS[b]}</span>`);
+  html+='</div><div class="pt-outer"><div class="pt-grid">';
+  for(let row=0;row<7;row++){
+    for(let col=0;col<18;col++){
+      const el=ELS.find(e=>e[6]===row+1&&e[5]===col+1);
+      if(el){const[n,s,nm,m,blk]=el;html+=`<div class="pt-el ${blk}-blk" onclick="showEl(${n})" title="${nm}"><div class="pt-n">${n}</div><div class="pt-s">${s}</div><div class="pt-m">${m}</div></div>`;}
+      else if((row<2&&(col>=2&&col<=15)&&!(row===0&&(col===0||col===17)))&&(row===0||(row===1&&col>=2&&col<=11))){html+=`<div class="pt-gap"></div>`;}
+      else if(row>=2&&row<=3&&col>=2&&col<=11){html+=`<div class="pt-gap"></div>`;}
+      else if((row===5||row===6)&&col===2){html+=`<div class="pt-el f-blk" style="opacity:.6" title="Lanthanides/Actinides">*</div>`;}
+      else html+=`<div></div>`;
+    }
+  }
+  html+='</div></div>';
+  // f-block rows
+  html+='<div style="margin-top:6px;font-family:Space Mono,monospace;font-size:8px;color:var(--muted);text-align:right;padding-right:4px">* Lanthanides (57–71) / Actinides (89–103)</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(14,1fr);gap:2px;margin-top:4px;">';
+  [8,9].forEach(per=>{ELS.filter(e=>e[6]===per).forEach(el=>{const[n,s,nm,m,blk]=el;html+=`<div class="pt-el ${blk}-blk" onclick="showEl(${n})" title="${nm}"><div class="pt-n">${n}</div><div class="pt-s">${s}</div><div class="pt-m">${m}</div></div>`;});});
+  html+='</div>';
+  html+='<div id="elDetail"></div>';
+  c.innerHTML=html;
+}
+function showEl(n){
+  const el=ELS.find(e=>e[0]===n);if(!el)return;
+  const[num,sym,name,mass,blk,grp,per]=el;
+  const colors={s:'var(--acc2)',p:'var(--acc)',d:'var(--acc4)',f:'var(--acc3)'};
+  document.getElementById('elDetail').innerHTML=`<div class="el-card"><div style="display:flex;align-items:center;gap:14px;margin-bottom:4px"><div class="el-sym-big" style="color:${colors[blk]}">${sym}</div><div><div style="font-size:15px;font-weight:600">${name}</div><div style="font-family:Space Mono,monospace;font-size:9px;color:var(--muted)">Z = ${num} · ${EL_CATS[blk]}</div></div></div><div class="el-dg"><div class="el-dc"><div class="el-dl">ATOMIC NUMBER</div><div class="el-dv">${num}</div></div><div class="el-dc"><div class="el-dl">ATOMIC MASS</div><div class="el-dv">${mass} u</div></div><div class="el-dc"><div class="el-dl">BLOCK</div><div class="el-dv">${blk.toUpperCase()}-block</div></div><div class="el-dc"><div class="el-dl">PERIOD / GROUP</div><div class="el-dv">${per} / ${grp||'f-block'}</div></div></div></div>`;}
+
+// ------ KINEMATICS (SUVAT) ------
+function buildKinHTML(){return`
+  <div class="t-sec-title">SUVAT KINEMATICS — enter any 3, solve remaining</div>
+  <div class="suv-grid">${[['s','Disp (m)'],['u','v₀ (m/s)'],['v','vf (m/s)'],['a','Accel (m/s²)'],['t','Time (s)']].map(([id,l])=>`<div><div class="suv-lbl">${l}</div><input class="suv-inp" id="sv_${id}" type="number" placeholder="?"></div>`).join('')}</div>
+  <div style="display:flex;gap:7px;margin-bottom:10px"><button class="a-btn" onclick="solveSUVAT()">SOLVE</button><button class="a-btn sec" onclick="clearSUVAT()">CLEAR</button></div>
+  <div class="t-res txt" id="suvatRes">Enter any 3 values then Solve</div>`;}
+function gSV(id){const v=document.getElementById('sv_'+id)?.value;return v!==''&&v!==null&&v!==undefined?parseFloat(v):null;}
+function sSV(id,v){const el=document.getElementById('sv_'+id);if(el&&el.value===''&&v!==null)el.value=parseFloat(v.toPrecision(6));}
+function solveSUVAT(){
+  let s=gSV('s'),u=gSV('u'),v=gSV('v'),a=gSV('a'),t=gSV('t');
+  if([s,u,v,a,t].filter(x=>x!==null).length<3){document.getElementById('suvatRes').textContent='Need at least 3 known values';return;}
+  const steps=[];let changed=true,iter=0;
+  while(changed&&iter++<10){changed=false;
+    if(u!==null&&a!==null&&t!==null&&v===null){v=u+a*t;sSV('v',v);steps.push(`v = u+at = ${fN(v)}`);changed=true;}
+    if(u!==null&&t!==null&&a!==null&&s===null){s=u*t+.5*a*t*t;sSV('s',s);steps.push(`s = ut+½at² = ${fN(s)}`);changed=true;}
+    if(v!==null&&t!==null&&a!==null&&s===null){s=v*t-.5*a*t*t;sSV('s',s);steps.push(`s = vt-½at² = ${fN(s)}`);changed=true;}
+    if(u!==null&&v!==null&&a!==null&&s===null&&a!==0){s=(v*v-u*u)/(2*a);sSV('s',s);steps.push(`s = (v²-u²)/(2a) = ${fN(s)}`);changed=true;}
+    if(u!==null&&v!==null&&t!==null&&s===null){s=.5*(u+v)*t;sSV('s',s);steps.push(`s = ½(u+v)t = ${fN(s)}`);changed=true;}
+    if(u!==null&&v!==null&&t!==null&&a===null){a=(v-u)/t;sSV('a',a);steps.push(`a = (v-u)/t = ${fN(a)}`);changed=true;}
+    if(s!==null&&u!==null&&t!==null&&a===null&&t!==0){a=2*(s-u*t)/(t*t);sSV('a',a);steps.push(`a = 2(s-ut)/t² = ${fN(a)}`);changed=true;}
+    if(v!==null&&a!==null&&t!==null&&u===null){u=v-a*t;sSV('u',u);steps.push(`u = v-at = ${fN(u)}`);changed=true;}
+  }
+  const res=['s','u','v','a','t'].map(k=>{const vals={s,u,v,a,t};return`<span class="hi">${k}=${vals[k]!==null?fN(vals[k]):'?'}</span>`;}).join(' &nbsp;');
+  document.getElementById('suvatRes').innerHTML=res+(steps.length?'<br><br>'+steps.map((s,i)=>`<div class="step"><span class="step-n">▸</span> ${s}</div>`).join(''):'');
+}
+function clearSUVAT(){['s','u','v','a','t'].forEach(id=>{const el=document.getElementById('sv_'+id);if(el)el.value='';});document.getElementById('suvatRes').textContent='Enter any 3 values then Solve';}
+
+// ------ ELECTRICAL ------
+function buildElecHTML(){return`
+  <div class="t-sec-title">OHM'S LAW — enter 2, solve 1</div>
+  <div class="t-row"><span class="t-lbl" style="min-width:70px">V (Volts)</span><input class="t-inp" id="ohV" type="number" placeholder="?"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:70px">I (Amps)</span><input class="t-inp" id="ohI" type="number" placeholder="?"></div>
+  <div class="t-row"><span class="t-lbl" style="min-width:70px">R (Ohms)</span><input class="t-inp" id="ohR" type="number" placeholder="?"></div>
+  <button class="a-btn" style="width:100%;margin-bottom:8px" onclick="solveOhm()">SOLVE</button>
+  <div class="t-res txt" id="ohmRes" style="margin-bottom:12px">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">RESISTOR NETWORK</div>
+  <div class="t-row"><select class="t-sel" id="rNet"><option value="ser">Series</option><option value="par">Parallel</option></select><input class="t-inp" id="rVals" placeholder="R1, R2, R3, … (Ohms)" style="flex:1"></div>
+  <button class="a-btn" style="width:100%;margin-bottom:8px" onclick="solveResistors()">CALCULATE</button>
+  <div class="t-res txt" id="rRes" style="margin-bottom:12px">—</div>
+  <div class="sep"></div>
+  <div class="t-sec-title">CAPACITOR NETWORK</div>
+  <div class="t-row"><select class="t-sel" id="cNet"><option value="ser">Series</option><option value="par">Parallel</option></select><input class="t-inp" id="cVals" placeholder="C1, C2, C3, … (Farads)" style="flex:1"></div>
+  <bu
+Preview truncated for large file
